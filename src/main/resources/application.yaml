@@ -1,3 +1,13 @@
 spring:
   application:
     name: shop.backend
+  datasource:
+    url: jdbc:postresql://localhost:5432/testuser
+    username: testuser
+
+#    will later be in env, this is for testing purposes
+    password: testing123
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update

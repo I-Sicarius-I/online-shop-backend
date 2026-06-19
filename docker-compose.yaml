@@ -1,0 +1,8 @@
+services:
+  db:
+    image: postgres
+    ports:
+      - "8585:5432"
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: testing123
