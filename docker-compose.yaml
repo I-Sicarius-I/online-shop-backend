@@ -1,6 +1,7 @@
 services:
   db:
     image: postgres
+    container_name: shop_backend
     ports:
       - "8585:5432"
     restart: always
