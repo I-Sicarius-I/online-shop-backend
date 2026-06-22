@@ -17,14 +17,13 @@ import lombok.NoArgsConstructor;
 public class UserEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_seq")
-    private Long id;
+    private String email;
 
     private String username;
 
-    private String about;
-
-    private String email;
+    private String role;
 
     private String password;
+
+    private String about;
 }

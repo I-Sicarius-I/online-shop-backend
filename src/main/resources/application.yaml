@@ -1,8 +1,9 @@
 spring:
   application:
-    name: shop.backend
+    name: shop_backend
   datasource:
-    url: jdbc:postresql://localhost:5432/testuser
+    image: postgres:18.3
+    url: jdbc:postgresql://localhost:8585/testuser
     username: testuser
 
 #    will later be in env, this is for testing purposes

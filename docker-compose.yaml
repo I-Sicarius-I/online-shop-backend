@@ -7,3 +7,5 @@ services:
     restart: always
     environment:
       POSTGRES_PASSWORD: testing123
+      POSTGRES_USER: testuser
+      POSTGRES_DATABASE: testdatabase
