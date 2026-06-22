@@ -1,6 +1,8 @@
 package dev.shop.backend;
 
+import dev.shop.backend.domain.dto.ProductDTO;
 import dev.shop.backend.domain.dto.UserDTO;
+import dev.shop.backend.domain.entities.ProductEntity;
 import dev.shop.backend.domain.entities.UserEntity;
 
 public final class TestDataUtilities {
@@ -27,45 +29,29 @@ public final class TestDataUtilities {
                 .build();
     }
 
-
-    public static UserEntity createTestUserEntityB(){
-        return UserEntity.builder()
-                .email("testuserb@testmail.com")
-                .username("TestUserB")
-                .role("User")
-                .password("TestPassB")
-                .about("Test user B is a user.")
+    public static ProductEntity createProductEntityA(final UserEntity userEntity){
+        return ProductEntity.builder()
+                .name("Test product A")
+                .type("Test")
+                .state("New")
+                .quantity(25L)
+                .description("A test product, brand new")
+                .price(123.)
+                .rating(10.)
+                .seller(userEntity)
                 .build();
     }
 
-    public static UserDTO createTestUserDTOB(){
-        return UserDTO.builder()
-                .email("testuserb@testmail.com")
-                .username("TestUserB")
-                .role("User")
-                .password("TestPassB")
-                .about("Test user B is a user.")
-                .build();
-    }
-
-
-    public static UserEntity createTestUserEntityC(){
-        return UserEntity.builder()
-                .email("testuserc@testmail.com")
-                .username("TestUserC")
-                .role("User")
-                .password("TestPassC")
-                .about("Test user C is a user.")
-                .build();
-    }
-
-    public static UserDTO createTestUserDTOC(){
-        return UserDTO.builder()
-                .email("testuserc@testmail.com")
-                .username("TestUserC")
-                .role("User")
-                .password("TestPassC")
-                .about("Test user C is a user.")
+    public static ProductDTO createProductDTOA(final UserDTO userDTO){
+        return ProductDTO.builder()
+                .name("Test product A")
+                .type("Test")
+                .state("New")
+                .quantity(25L)
+                .description("A test product, brand new")
+                .price(123.)
+                .rating(10.)
+                .seller(userDTO)
                 .build();
     }
 }

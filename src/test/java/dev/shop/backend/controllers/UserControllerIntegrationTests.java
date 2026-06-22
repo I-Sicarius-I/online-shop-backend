@@ -23,9 +23,9 @@ import tools.jackson.databind.ObjectMapper;
 @AutoConfigureMockMvc
 public class UserControllerIntegrationTests {
 
-    private MockMvc mockMvc;
-    private ObjectMapper objectMapper;
-    private UserService userService;
+    private final MockMvc mockMvc;
+    private final ObjectMapper objectMapper;
+    private final UserService userService;
 
     @Autowired
     public UserControllerIntegrationTests(MockMvc mockMvc, UserService userService){
@@ -38,7 +38,6 @@ public class UserControllerIntegrationTests {
     public void testThatCreateUserReturnsHttpStatusCreated() throws Exception{
 
         UserEntity userEntityA = TestDataUtilities.createTestUserEntityA();
-        userService.save(userEntityA);
 
         String userJSON = objectMapper.writeValueAsString(userEntityA);
 
@@ -55,7 +54,6 @@ public class UserControllerIntegrationTests {
     public void testThatCreateUserReturnsSavedUser() throws Exception{
 
         UserEntity userEntityA = TestDataUtilities.createTestUserEntityA();
-        userService.save(userEntityA);
 
         String userJSON = objectMapper.writeValueAsString(userEntityA);
 
@@ -78,7 +76,6 @@ public class UserControllerIntegrationTests {
     public void testThatFindAllUsersReturnsHttpStatusOK() throws Exception{
 
         UserEntity userA = TestDataUtilities.createTestUserEntityA();
-
         userService.save(userA);
 
 
