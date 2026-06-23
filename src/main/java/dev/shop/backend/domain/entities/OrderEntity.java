@@ -27,7 +27,7 @@ public class OrderEntity {
 
     private Date dateShipped;
 
-    private Date recieved;
+    private Date dateReceived;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "buyer_id")

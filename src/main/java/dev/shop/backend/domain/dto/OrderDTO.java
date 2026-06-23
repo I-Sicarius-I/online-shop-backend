@@ -21,7 +21,7 @@ public class OrderDTO {
 
     private Date dateShipped;
 
-    private Date recieved;
+    private Date dateReceived;
 
     private UserDTO buyer;
 

@@ -33,7 +33,7 @@ public class ProductEntity {
 
     private Double rating;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "seller_id")
     private UserEntity seller;
 

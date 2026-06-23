@@ -71,7 +71,7 @@ public class ProductController {
         ProductEntity productEntity = productMapper.mapFrom(productDTO);
         ProductEntity updatedEntity = productService.partialUpdate(id, productEntity);
 
-        return new ResponseEntity<>(productMapper.mapTo(productEntity), HttpStatus.OK);
+        return new ResponseEntity<>(productMapper.mapTo(updatedEntity), HttpStatus.OK);
     }
 
     @DeleteMapping("/products/{id}")

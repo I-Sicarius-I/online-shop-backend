@@ -66,7 +66,7 @@ public class UserController{
         UserEntity userEntity = userMapper.mapFrom(userDTO);
         UserEntity updatedUser = userService.partialUpdate(email, userEntity);
 
-        return new ResponseEntity<>(userMapper.mapTo(userEntity), HttpStatus.OK);
+        return new ResponseEntity<>(userMapper.mapTo(updatedUser), HttpStatus.OK);
     }
 
     @DeleteMapping("/users/{email}")
