@@ -2,7 +2,6 @@ package dev.shop.backend.controllers;
 
 import dev.shop.backend.TestDataUtilities;
 import dev.shop.backend.domain.dto.ProductDTO;
-import dev.shop.backend.domain.dto.UserDTO;
 import dev.shop.backend.domain.entities.ProductEntity;
 import dev.shop.backend.domain.entities.UserEntity;
 import dev.shop.backend.service.ProductService;
@@ -29,11 +28,13 @@ public class ProductControllerIntegrationTests {
     private final MockMvc mockMvc;
     private final ObjectMapper objectMapper;
     private final ProductService productService;
+    private final UserService userService;
 
     @Autowired
     public ProductControllerIntegrationTests(MockMvc mockMvc, ProductService productService, UserService userService){
         this.mockMvc = mockMvc;
         this.productService = productService;
+        this.userService = userService;
         this.objectMapper = new ObjectMapper();
     }
 
@@ -85,7 +86,6 @@ public class ProductControllerIntegrationTests {
     @Test
     public void testThatListAllReturnsHttpStatusOK() throws Exception{
 
-
         ProductEntity productA = TestDataUtilities.createProductEntityA(null);
         ProductEntity savedProduct = productService.save(productA);
 
@@ -116,8 +116,56 @@ public class ProductControllerIntegrationTests {
     }
 
     @Test
-    public void testThatGetProductReturnsHttpStatusOKWhenProductExists() throws Exception{
+    public void testThatGetSellerProductsReturnsHttpStatusOK() throws Exception{
+        UserEntity userA = TestDataUtilities.createTestUserEntityA();
+        UserEntity savedUser = userService.save(userA);
 
+        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(savedUser.getEmail());
+
+        ProductEntity productA = TestDataUtilities.createProductEntityA(user);
+        productService.save(productA);
+
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/products?email=" + user.getEmail())
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(
+                MockMvcResultMatchers.status().isOk()
+        );
+    }
+
+    @Test
+    public void testThatFindAllProductsByUserReturnsListOfProducts() throws Exception{
+        UserEntity userA = TestDataUtilities.createTestUserEntityA();
+        UserEntity savedUser = userService.save(userA);
+
+        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(savedUser.getEmail());
+
+        ProductEntity productA = TestDataUtilities.createProductEntityA(user);
+        productService.save(productA);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/products?email=" + user.getEmail())
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].name").value(productA.getName())
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].type").value(productA.getType())
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].state").value(productA.getState())
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].quantity").value(productA.getQuantity())
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].description").value(productA.getDescription())
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].price").value(productA.getPrice())
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].rating").value(productA.getRating())
+        );
+    }
+
+    @Test
+    public void testThatGetProductReturnsHttpStatusOKWhenProductExists() throws Exception{
 
         ProductEntity productA = TestDataUtilities.createProductEntityA(null);
         ProductEntity savedProduct = productService.save(productA);

@@ -11,6 +11,10 @@ public interface ReviewService {
 
     List<ReviewEntity> findAll();
 
+    List<ReviewEntity> findReviewsFromUser(String email);
+
+    List<ReviewEntity> findReviewsOfProduct(Long id);
+
     Optional<ReviewEntity> findOne(Long id);
 
     boolean isExists(Long id);

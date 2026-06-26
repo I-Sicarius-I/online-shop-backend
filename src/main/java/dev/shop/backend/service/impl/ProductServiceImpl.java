@@ -34,6 +34,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<ProductEntity> findProductsByUser(String email) {
+        return StreamSupport.stream(
+                        productRepository
+                                .findProductsBySellerId(email)
+                                .spliterator(), false)
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
     public Optional<ProductEntity> findOne(Long id){
         return productRepository.findById(id);
     }

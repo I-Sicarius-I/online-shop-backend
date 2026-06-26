@@ -34,6 +34,24 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    public List<ReviewEntity> findReviewsFromUser(String email) {
+        return StreamSupport.stream(
+                reviewRepository
+                        .findReviewsByReviewerId(email)
+                        .spliterator(), false)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ReviewEntity> findReviewsOfProduct(Long id) {
+        return StreamSupport.stream(
+                reviewRepository
+                        .findReviewsByProductId(id)
+                        .spliterator(), false)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Optional<ReviewEntity> findOne(Long id){
         return reviewRepository.findById(id);
     }

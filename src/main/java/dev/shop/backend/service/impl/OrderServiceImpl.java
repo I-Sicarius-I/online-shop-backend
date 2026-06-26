@@ -35,6 +35,24 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public List<OrderEntity> findOrdersOfProduct(Long id) {
+        return StreamSupport.stream(
+                orderRepository
+                        .findOrdersByProductId(id)
+                        .spliterator(), false)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<OrderEntity> findOrdersByUser(String email) {
+        return StreamSupport.stream(
+                orderRepository
+                        .findOrdersByBuyerId(email)
+                        .spliterator(), false)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Optional<OrderEntity> findOne(Long id){
         return orderRepository.findById(id);
     }

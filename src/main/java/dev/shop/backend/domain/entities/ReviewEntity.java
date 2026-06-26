@@ -22,11 +22,11 @@ public class ReviewEntity {
 
     private Integer rating;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "product_id")
+    @ManyToOne
+    @JoinColumn(name = "product_id", referencedColumnName = "id")
     private ProductEntity product;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "reviewer_id")
+    @ManyToOne
+    @JoinColumn(name = "reviewer_id", referencedColumnName = "email")
     private UserEntity reviewer;
 }

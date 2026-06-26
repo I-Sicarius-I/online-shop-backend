@@ -157,6 +157,52 @@ public class UserControllerIntegrationTests {
     }
 
     @Test
+    public void testThatFindUserByUsernameReturnsHttpStatusOKWhenUserExists() throws Exception{
+
+        UserEntity user = TestDataUtilities.createTestUserEntityA();
+        UserEntity savedUser = userService.save(user);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/users?username=" + savedUser.getUsername())
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(
+                MockMvcResultMatchers.status().isOk()
+        );
+    }
+
+    @Test
+    public void testThatFindUserByUsernameReturnsFoundUser() throws Exception{
+
+        UserEntity userA = TestDataUtilities.createTestUserEntityA();
+
+        UserEntity savedUser = userService.save(userA);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/users?username=" + savedUser.getUsername())
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.email").value("testusera@testmail.com")
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.username").value("TestUserA")
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.password").value("TestPassA")
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.about").value("Test user A is a user.")
+        );
+    }
+
+    @Test
+    public void testThatFindUserByUsernameReturnsHttpStatusNotFoundWhenUserDoesNotExist() throws Exception{
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/users?username=gibberish")
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(
+                MockMvcResultMatchers.status().isNotFound()
+        );
+    }
+
+    @Test
     public void testThatPartialUpdateExistingUserReturnsHttpStatusOK() throws Exception{
 
         UserEntity userA = TestDataUtilities.createTestUserEntityA();

@@ -41,6 +41,31 @@ public class ReviewController {
                 .collect(Collectors.toList()), HttpStatus.OK);
     }
 
+    @GetMapping(value = "/reviews", params = "email")
+    public ResponseEntity<List<ReviewDTO>> listReviewsByUser(@RequestParam("email") String email){
+
+        List<ReviewEntity> reviewEntities = reviewService.findReviewsFromUser(email);
+
+        return new ResponseEntity<>(
+                reviewEntities
+                        .stream()
+                        .map(reviewMapper::mapTo)
+                        .collect(Collectors.toList()), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/reviews", params = "product_id")
+    public ResponseEntity<List<ReviewDTO>> listReviewsOfProduct(@RequestParam("product_id") Long id){
+
+        List<ReviewEntity> reviewEntities = reviewService.findReviewsOfProduct(id);
+
+        return new ResponseEntity<>(
+                reviewEntities
+                        .stream()
+                        .map(reviewMapper::mapTo)
+                        .collect(Collectors.toList()), HttpStatus.OK
+        );
+    }
+
     @GetMapping("/reviews/{id}")
     public ResponseEntity<ReviewDTO> getReview(@PathVariable Long id){
 

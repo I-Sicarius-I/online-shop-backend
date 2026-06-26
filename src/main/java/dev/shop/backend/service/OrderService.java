@@ -11,6 +11,10 @@ public interface OrderService {
 
     List<OrderEntity> findAll();
 
+    List<OrderEntity> findOrdersOfProduct(Long id);
+
+    List<OrderEntity> findOrdersByUser(String email);
+
     Optional<OrderEntity> findOne(Long id);
 
     boolean isExists(Long id);

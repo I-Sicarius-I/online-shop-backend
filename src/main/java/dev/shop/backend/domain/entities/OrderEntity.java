@@ -29,11 +29,11 @@ public class OrderEntity {
 
     private Date dateReceived;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "buyer_id")
+    @ManyToOne
+    @JoinColumn(name = "buyer_id", referencedColumnName = "email")
     private UserEntity buyer;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "product_id")
+    @ManyToOne
+    @JoinColumn(name = "product_id", referencedColumnName = "id")
     private ProductEntity product;
 }

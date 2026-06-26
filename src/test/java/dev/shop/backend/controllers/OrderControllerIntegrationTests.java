@@ -3,7 +3,11 @@ package dev.shop.backend.controllers;
 import dev.shop.backend.TestDataUtilities;
 import dev.shop.backend.domain.dto.OrderDTO;
 import dev.shop.backend.domain.entities.OrderEntity;
+import dev.shop.backend.domain.entities.ProductEntity;
+import dev.shop.backend.domain.entities.UserEntity;
 import dev.shop.backend.service.OrderService;
+import dev.shop.backend.service.ProductService;
+import dev.shop.backend.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +30,15 @@ public class OrderControllerIntegrationTests {
     private final MockMvc mockMvc;
     private final ObjectMapper objectMapper;
     private final OrderService orderService;
+    private final UserService userService;
+    private final ProductService productService;
 
     @Autowired
-    public OrderControllerIntegrationTests(MockMvc mockMvc, OrderService orderService){
+    public OrderControllerIntegrationTests(MockMvc mockMvc, OrderService orderService, UserService userService, ProductService productService){
         this.mockMvc = mockMvc;
         this.orderService = orderService;
+        this.userService = userService;
+        this.productService = productService;
         this.objectMapper = new ObjectMapper();
     }
 
@@ -91,6 +99,105 @@ public class OrderControllerIntegrationTests {
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(
                 MockMvcResultMatchers.jsonPath("$[0].quantity").value(order.getQuantity())
+        );
+    }
+
+    @Test
+    public void testThatListOrdersByUserReturnsHttpStatusOK() throws Exception{
+        UserEntity userA = TestDataUtilities.createTestUserEntityA();
+        UserEntity savedUser = userService.save(userA);
+
+        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(savedUser.getEmail());
+
+        ProductEntity productEntity = TestDataUtilities.createProductEntityA(user);
+        ProductEntity savedProduct = productService.save(productEntity);
+
+        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(user.getEmail(), savedProduct.getId());
+
+        OrderEntity order = TestDataUtilities.createOrderEntityA(user, product);
+        OrderEntity savedOrder = orderService.save(order);
+
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/orders?email=" + user.getEmail())
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(
+                MockMvcResultMatchers.status().isOk()
+        );
+    }
+
+    @Test
+    public void testThatListOrdersByUserReturnsListOfOrders() throws Exception{
+        UserEntity userA = TestDataUtilities.createTestUserEntityA();
+        UserEntity savedUser = userService.save(userA);
+
+        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(savedUser.getEmail());
+
+        ProductEntity productEntity = TestDataUtilities.createProductEntityA(user);
+        ProductEntity savedProduct = productService.save(productEntity);
+
+        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(user.getEmail(), savedProduct.getId());
+
+        OrderEntity order = TestDataUtilities.createOrderEntityA(user, product);
+        OrderEntity savedOrder = orderService.save(order);
+
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/orders?email=" + user.getEmail())
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].quantity").value(savedOrder.getQuantity())
+        );
+    }
+
+    @Test
+    public void testThatListOrdersByProductReturnsHttpStatusOK() throws Exception{
+        UserEntity userA = TestDataUtilities.createTestUserEntityA();
+        UserEntity savedUser = userService.save(userA);
+
+        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(savedUser.getEmail());
+
+
+        ProductEntity productEntity = TestDataUtilities.createProductEntityA(user);
+        ProductEntity savedProduct = productService.save(productEntity);
+
+        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(user.getEmail(), savedProduct.getId());
+
+        OrderEntity order = TestDataUtilities.createOrderEntityA(user, product);
+        OrderEntity savedOrder = orderService.save(order);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/orders?id=" + savedProduct.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(
+                MockMvcResultMatchers.status().isOk()
+        );
+    }
+
+    @Test
+    public void testThatListOrdersOfProductReturnsListOfOrders() throws Exception{
+        UserEntity userA = TestDataUtilities.createTestUserEntityA();
+        UserEntity savedUser = userService.save(userA);
+
+        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(savedUser.getEmail());
+
+
+        ProductEntity productEntity = TestDataUtilities.createProductEntityA(user);
+        ProductEntity savedProduct = productService.save(productEntity);
+
+        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(user.getEmail(), savedProduct.getId());
+
+        productEntity.setId(savedProduct.getId());
+
+        OrderEntity order = TestDataUtilities.createOrderEntityA(user, product);
+        OrderEntity savedOrder = orderService.save(order);
+
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/orders?product_id=" + productEntity.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].quantity").value(savedOrder.getQuantity())
         );
     }
 

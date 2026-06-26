@@ -17,6 +17,7 @@ public class ProductEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_id_seq")
+    @Column(name = "id")
     private Long id;
 
     private String name;
@@ -34,7 +35,7 @@ public class ProductEntity {
     private Double rating;
 
     @ManyToOne
-    @JoinColumn(name = "seller_id")
+    @JoinColumn(name = "seller_id", referencedColumnName = "email")
     private UserEntity seller;
 
 }

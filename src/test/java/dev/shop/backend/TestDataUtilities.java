@@ -30,6 +30,12 @@ public final class TestDataUtilities {
                 .build();
     }
 
+    public static UserEntity createTestUserEntityAForRequests(String email){
+        return UserEntity.builder()
+                .email(email)
+                .build();
+    }
+
     public static UserDTO createTestUserDTOA(){
         return UserDTO.builder()
                 .email("testusera@testmail.com")
@@ -37,6 +43,12 @@ public final class TestDataUtilities {
                 .role("User")
                 .password("TestPassA")
                 .about("Test user A is a user.")
+                .build();
+    }
+
+    public static UserDTO createTestUserDTOAForRequests(String email){
+        return UserDTO.builder()
+                .email(email)
                 .build();
     }
 
@@ -53,6 +65,16 @@ public final class TestDataUtilities {
                 .build();
     }
 
+    public static ProductEntity createProductEntityAForRequests(String email, Long id){
+
+        UserEntity userEntity = TestDataUtilities.createTestUserEntityAForRequests(email);
+
+        return ProductEntity.builder()
+                .id(id)
+                .seller(userEntity)
+                .build();
+    }
+
     public static ProductDTO createProductDTOA(final UserDTO userDTO){
         return ProductDTO.builder()
                 .name("Test product A")
@@ -62,6 +84,16 @@ public final class TestDataUtilities {
                 .description("A test product, brand new")
                 .price(123.)
                 .rating(10.)
+                .seller(userDTO)
+                .build();
+    }
+
+    public static ProductDTO createProductDTOAForRequests(String email, Long id){
+
+        UserDTO userDTO = TestDataUtilities.createTestUserDTOAForRequests(email);
+
+        return ProductDTO.builder()
+                .id(id)
                 .seller(userDTO)
                 .build();
     }

@@ -11,6 +11,8 @@ public interface ProductService {
 
     List<ProductEntity> findAll();
 
+    List<ProductEntity> findProductsByUser(String email);
+
     Optional<ProductEntity> findOne(Long id);
 
     boolean isExists(Long id);

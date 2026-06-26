@@ -55,6 +55,18 @@ public class UserController{
         ).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @GetMapping(value = "/users", params = "username")
+    public ResponseEntity<UserDTO> getUserByUsername(@RequestParam("username") String username){
+        Optional<UserEntity> foundUser = userService.findByUsername(username);
+
+        return foundUser.map(
+                userEntity -> {
+                    UserDTO userDTO = userMapper.mapTo(userEntity);
+                    return new ResponseEntity<>(userDTO, HttpStatus.OK);
+                }
+        ).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
     @PatchMapping("/users/{email}")
     public ResponseEntity<UserDTO> partialUpdateUser(@PathVariable String email, @RequestBody UserDTO userDTO)
     {

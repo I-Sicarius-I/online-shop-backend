@@ -2,8 +2,12 @@ package dev.shop.backend.controllers;
 
 import dev.shop.backend.TestDataUtilities;
 import dev.shop.backend.domain.dto.ReviewDTO;
+import dev.shop.backend.domain.entities.ProductEntity;
 import dev.shop.backend.domain.entities.ReviewEntity;
+import dev.shop.backend.domain.entities.UserEntity;
+import dev.shop.backend.service.ProductService;
 import dev.shop.backend.service.ReviewService;
+import dev.shop.backend.service.UserService;
 import dev.shop.backend.service.impl.ReviewServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,12 +30,16 @@ public class ReviewControllerIntegrationTests {
 
     private final MockMvc mockMvc;
     private final ReviewService reviewService;
+    private final UserService userService;
+    private final ProductService productService;
     private final ObjectMapper objectMapper;
 
     @Autowired
-    public ReviewControllerIntegrationTests(MockMvc mockMvc, ReviewService reviewService){
+    public ReviewControllerIntegrationTests(MockMvc mockMvc, ReviewService reviewService, UserService userService, ProductService productService){
         this.mockMvc = mockMvc;
         this.reviewService = reviewService;
+        this.userService = userService;
+        this.productService = productService;
         this.objectMapper = new ObjectMapper();
     }
 
@@ -92,6 +100,104 @@ public class ReviewControllerIntegrationTests {
         mockMvc.perform(
                 MockMvcRequestBuilders.get("/reviews")
                         .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].text").value(reviewEntity.getText())
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].rating").value(reviewEntity.getRating())
+        );
+    }
+
+
+    @Test
+    public void testThatListAllReviewsByUserReturnsHttpStatusOK() throws Exception{
+
+        UserEntity userA = TestDataUtilities.createTestUserEntityA();
+        UserEntity savedUser = userService.save(userA);
+
+        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(savedUser.getEmail());
+
+        ProductEntity productEntity = TestDataUtilities.createProductEntityA(user);
+        ProductEntity savedProduct = productService.save(productEntity);
+
+        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(user.getEmail(), savedProduct.getId());
+
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(user, product);
+        reviewService.save(reviewEntity);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/reviews?email=" + user.getEmail())
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(
+                MockMvcResultMatchers.status().isOk()
+        );
+    }
+
+    @Test
+    public void testThatListAllReviewsByUserReturnsListOfReviews() throws Exception{
+
+        UserEntity userA = TestDataUtilities.createTestUserEntityA();
+        UserEntity savedUser = userService.save(userA);
+
+        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(savedUser.getEmail());
+
+        ProductEntity productEntity = TestDataUtilities.createProductEntityA(user);
+        ProductEntity savedProduct = productService.save(productEntity);
+
+        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(user.getEmail(), savedProduct.getId());
+
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(user, product);
+        reviewService.save(reviewEntity);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/reviews?email=" + user.getEmail())
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].text").value(reviewEntity.getText())
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].rating").value(reviewEntity.getRating())
+        );
+    }
+
+    @Test
+    public void testThatListAllReviewsByProductReturnsHttpStatusOK() throws Exception{
+
+        UserEntity userA = TestDataUtilities.createTestUserEntityA();
+        UserEntity savedUser = userService.save(userA);
+
+        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(savedUser.getEmail());
+
+        ProductEntity productEntity = TestDataUtilities.createProductEntityA(user);
+        ProductEntity savedProduct = productService.save(productEntity);
+
+        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(user.getEmail(), savedProduct.getId());
+
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(user, product);
+        reviewService.save(reviewEntity);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/reviews?product_id=" + product.getId())
+        ).andExpect(
+                MockMvcResultMatchers.status().isOk()
+        );
+    }
+
+    @Test
+    public void testThatListAllReviewsByProductReturnsListOfReviews() throws Exception{
+
+        UserEntity userA = TestDataUtilities.createTestUserEntityA();
+        UserEntity savedUser = userService.save(userA);
+
+        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(savedUser.getEmail());
+
+        ProductEntity productEntity = TestDataUtilities.createProductEntityA(user);
+        ProductEntity savedProduct = productService.save(productEntity);
+
+        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(user.getEmail(), savedProduct.getId());
+
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(user, product);
+        reviewService.save(reviewEntity);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/reviews?product_id=" + product.getId())
         ).andExpect(
                 MockMvcResultMatchers.jsonPath("$[0].text").value(reviewEntity.getText())
         ).andExpect(

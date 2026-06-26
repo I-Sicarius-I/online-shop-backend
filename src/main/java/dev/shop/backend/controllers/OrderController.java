@@ -4,6 +4,7 @@ import dev.shop.backend.domain.dto.OrderDTO;
 import dev.shop.backend.domain.entities.OrderEntity;
 import dev.shop.backend.mappers.impl.OrderMapper;
 import dev.shop.backend.service.OrderService;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +44,28 @@ public class OrderController {
                 .map(orderMapper::mapTo)
                 .collect(Collectors.toList()), HttpStatus.OK
         );
+    }
+
+    @GetMapping(value = "/orders", params = "email")
+    public ResponseEntity<List<OrderDTO>> listOrdersByUser(@Param("email") String email){
+
+        List<OrderEntity> orderEntities = orderService.findOrdersByUser(email);
+
+        return new ResponseEntity<>(orderEntities
+                .stream()
+                .map(orderMapper::mapTo)
+                .collect(Collectors.toList()), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/orders", params = "id")
+    public ResponseEntity<List<OrderDTO>> listOrdersOfProduct(@Param("id") Long productId){
+
+        List<OrderEntity> orderEntities = orderService.findOrdersOfProduct(productId);
+
+        return new ResponseEntity<>(orderEntities
+                .stream()
+                .map(orderMapper::mapTo)
+                .collect(Collectors.toList()), HttpStatus.OK);
     }
 
     @GetMapping("/orders/{id}")

@@ -12,6 +12,8 @@ public interface UserService {
 
     Optional<UserEntity> findOne(String email);
 
+    Optional<UserEntity> findByUsername(String username);
+
     boolean isExists(String email);
 
     boolean isExistsByUsername(String email);

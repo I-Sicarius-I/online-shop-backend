@@ -45,6 +45,19 @@ public class ProductController {
         );
     }
 
+    @GetMapping(value = "/products", params = "email")
+    public ResponseEntity<List<ProductDTO>> findAllProductsByUser(@RequestParam("email") String email){
+
+        List<ProductEntity> productEntities = productService.findProductsByUser(email);
+
+        return new ResponseEntity<>(
+                productEntities
+                        .stream()
+                        .map(productMapper::mapTo)
+                        .collect(Collectors.toList()), HttpStatus.OK
+        );
+
+    }
     @GetMapping("/products/{id}")
     public ResponseEntity<ProductDTO> getProduct(@PathVariable Long id){
 
@@ -57,6 +70,7 @@ public class ProductController {
                 }
         ).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+
 
     @PatchMapping("/products/{id}")
     public ResponseEntity<ProductDTO> partialUpdateProduct(@PathVariable Long id, @RequestBody ProductDTO productDTO){
