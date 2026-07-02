@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean isExists(String email){
-        return userRepository.existsById(email);
+        return userRepository.existsByEmail(email);
     }
 
     @Override

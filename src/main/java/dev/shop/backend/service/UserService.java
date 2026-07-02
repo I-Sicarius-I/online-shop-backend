@@ -16,7 +16,7 @@ public interface UserService {
 
     boolean isExists(String email);
 
-    boolean isExistsByUsername(String email);
+    boolean isExistsByUsername(String username);
 
     UserEntity partialUpdate(String email, UserEntity userEntity);
 

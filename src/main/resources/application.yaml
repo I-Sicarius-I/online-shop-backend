@@ -1,6 +1,6 @@
 spring:
   application:
-    name: shop_backend
+  name: shop_backend
   datasource:
     image: postgres:18.3
     url: jdbc:postgresql://localhost:8585/testuser
@@ -13,3 +13,10 @@ spring:
     hibernate:
       ddl-auto: update
     defer-database-initialization: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+jwt:
+  secret: awd891sdawkoie123890dk12312sajwyhawekawei1231sadkeo

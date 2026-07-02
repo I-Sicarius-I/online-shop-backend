@@ -4,6 +4,8 @@ import dev.shop.backend.domain.dto.OrderDTO;
 import dev.shop.backend.domain.dto.ProductDTO;
 import dev.shop.backend.domain.dto.ReviewDTO;
 import dev.shop.backend.domain.dto.UserDTO;
+import dev.shop.backend.domain.dto.security.LoginRequest;
+import dev.shop.backend.domain.dto.security.RegisterRequest;
 import dev.shop.backend.domain.entities.OrderEntity;
 import dev.shop.backend.domain.entities.ProductEntity;
 import dev.shop.backend.domain.entities.ReviewEntity;
@@ -147,6 +149,14 @@ public final class TestDataUtilities {
                 .rating(10)
                 .reviewer(userDTO)
                 .product(productDTO)
+                .build();
+    }
+
+    public static RegisterRequest createRegisterRequest(){
+        return RegisterRequest.builder()
+                .email("example@test.com")
+                .username("exampleUser")
+                .password("pass123")
                 .build();
     }
 }

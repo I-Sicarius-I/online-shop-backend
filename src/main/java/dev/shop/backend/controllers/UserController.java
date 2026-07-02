@@ -24,13 +24,13 @@ public class UserController{
         this.userMapper = userMapper;
     }
 
-    @PostMapping("/users")
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userRequest){
-        UserEntity userEntity = userMapper.mapFrom(userRequest);
-        UserEntity savedUser = userService.save(userEntity);
-
-        return new ResponseEntity<>(userMapper.mapTo(savedUser), HttpStatus.CREATED);
-    }
+//    @PostMapping("/users")
+//    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userRequest){
+//        UserEntity userEntity = userMapper.mapFrom(userRequest);
+//        UserEntity savedUser = userService.save(userEntity);
+//
+//        return new ResponseEntity<>(userMapper.mapTo(savedUser), HttpStatus.CREATED);
+//    }
 
     @GetMapping("/users")
     public ResponseEntity<List<UserDTO>> listUsers(){
