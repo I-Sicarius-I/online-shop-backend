@@ -8,12 +8,16 @@ import dev.shop.backend.domain.entities.UserEntity;
 import dev.shop.backend.service.OrderService;
 import dev.shop.backend.service.ProductService;
 import dev.shop.backend.service.UserService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,6 +29,7 @@ import tools.jackson.databind.ObjectMapper;
 @ExtendWith(SpringExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
+@WithMockUser("test@email.com")
 public class OrderControllerIntegrationTests {
 
     private final MockMvc mockMvc;
@@ -32,6 +37,7 @@ public class OrderControllerIntegrationTests {
     private final OrderService orderService;
     private final UserService userService;
     private final ProductService productService;
+    private UserDetails currentUser;
 
     @Autowired
     public OrderControllerIntegrationTests(MockMvc mockMvc, OrderService orderService, UserService userService, ProductService productService){
@@ -41,6 +47,25 @@ public class OrderControllerIntegrationTests {
         this.productService = productService;
         this.objectMapper = new ObjectMapper();
     }
+
+    @BeforeEach
+    public void createUser(){
+        UserDetails userDetails = null;
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principal instanceof UserDetails){
+            userDetails = (UserDetails) principal;
+        }
+
+        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(userDetails.getUsername());
+        user.setPassword(userDetails.getPassword());
+        user.setUsername("testUser");
+        user.setRole("ROLE_USER");
+
+        UserEntity savedUser = userService.save(user);
+        this.currentUser = userDetails;
+    }
+
 
     @Test
     public void testThatCreateOrderReturnsHttpStatusCreated() throws Exception{
@@ -241,7 +266,9 @@ public class OrderControllerIntegrationTests {
     @Test
     public void testThatPartialUpdateOrderReturnsHttpStatusOKWhenOrderExists() throws Exception{
 
-        OrderEntity order = TestDataUtilities.createOrderEntityA(null, null);
+        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(currentUser.getUsername());
+
+        OrderEntity order = TestDataUtilities.createOrderEntityA(user, null);
         OrderEntity savedOrder = orderService.save(order);
 
         OrderDTO orderDTO = TestDataUtilities.createOrderDTOA(null, null);
@@ -276,10 +303,35 @@ public class OrderControllerIntegrationTests {
     }
 
     @Test
+    public void testThatPartialUpdateOrderReturnsHttpStatusUnauthorizedWhenOrderOwnerDoesNotMatchCurrentUser() throws Exception{
+
+        UserEntity user = TestDataUtilities.createTestUserEntityA();
+        String email = userService.save(user).getEmail();
+
+        UserEntity request = TestDataUtilities.createTestUserEntityAForRequests(email);
+        OrderEntity order = TestDataUtilities.createOrderEntityA(request, null);
+        OrderEntity savedOrder = orderService.save(order);
+
+        OrderDTO orderDTO = TestDataUtilities.createOrderDTOA(null, null);
+        orderDTO.setQuantity(123L);
+
+        String orderJSON = objectMapper.writeValueAsString(orderDTO);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.patch("/orders/" + savedOrder.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(orderJSON)
+        ).andExpect(
+                MockMvcResultMatchers.status().isUnauthorized()
+        );
+    }
+
+    @Test
     public void testThatPartialUpdateOrderReturnsUpdatedOrder() throws Exception{
 
-        OrderEntity order = TestDataUtilities.createOrderEntityA(null, null);
-        OrderEntity savedOrder = orderService.save(order);
+        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(currentUser.getUsername());
+
+        OrderEntity order = TestDataUtilities.createOrderEntityA(user, null);        OrderEntity savedOrder = orderService.save(order);
 
         OrderDTO orderDTO = TestDataUtilities.createOrderDTOA(null, null);
         orderDTO.setQuantity(123L);
@@ -298,14 +350,34 @@ public class OrderControllerIntegrationTests {
     @Test
     public void testThatDeleteOrderReturnsHttpStatusNoContentWhenOrderExists() throws Exception{
 
-        OrderEntity order = TestDataUtilities.createOrderEntityA(null, null);
+        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(currentUser.getUsername());
+
+        OrderEntity order = TestDataUtilities.createOrderEntityA(user, null);
         OrderEntity savedOrder = orderService.save(order);
 
         mockMvc.perform(
-                MockMvcRequestBuilders.delete("/orders/" + order.getId())
+                MockMvcRequestBuilders.delete("/orders/" + savedOrder.getId())
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(
                 MockMvcResultMatchers.status().isNoContent()
+        );
+    }
+
+    @Test
+    public void testThatDeleteOrderReturnsHttpStatusUnauthorizedWhenOrderOwnerDoesNotMatchCurrentUser() throws Exception{
+
+        UserEntity user = TestDataUtilities.createTestUserEntityA();
+        String email = userService.save(user).getEmail();
+
+        UserEntity request = TestDataUtilities.createTestUserEntityAForRequests(email);
+
+        OrderEntity order = TestDataUtilities.createOrderEntityA(request, null);
+        OrderEntity savedOrder = orderService.save(order);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/orders/" + savedOrder.getId())
+        ).andExpect(
+                MockMvcResultMatchers.status().isUnauthorized()
         );
     }
 

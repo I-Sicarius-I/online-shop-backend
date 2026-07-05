@@ -1,11 +1,17 @@
 package dev.shop.backend.controllers;
 
 import dev.shop.backend.domain.dto.ProductDTO;
+import dev.shop.backend.domain.dto.UserDTO;
 import dev.shop.backend.domain.entities.ProductEntity;
+import dev.shop.backend.domain.entities.UserEntity;
+import dev.shop.backend.exceptions.InvalidProductOwnerException;
 import dev.shop.backend.mappers.impl.ProductMapper;
 import dev.shop.backend.service.ProductService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,19 +19,25 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
+@RequiredArgsConstructor
 public class ProductController {
 
     private final ProductService productService;
 
     private final ProductMapper productMapper;
 
-    public ProductController(ProductService productService, ProductMapper productMapper){
-        this.productService = productService;
-        this.productMapper = productMapper;
-    }
 
     @PostMapping("/products")
     public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO productDTO){
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        UserDTO userDTO = UserDTO.builder()
+                .email(email)
+                .build();
+
+        productDTO.setSeller(userDTO);
 
         ProductEntity productEntity = productMapper.mapFrom(productDTO);
         ProductEntity savedProduct = productService.save(productEntity);
@@ -75,15 +87,25 @@ public class ProductController {
     @PatchMapping("/products/{id}")
     public ResponseEntity<ProductDTO> partialUpdateProduct(@PathVariable Long id, @RequestBody ProductDTO productDTO){
 
-        if(!productService.isExists(id))
-        {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+       if(!productService.isExists(id))
+       {
+           return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+       }
+
+
+       Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if(!productService.existsBySellerId(id, auth.getName())){
+            throw new InvalidProductOwnerException("Product owner does not match current user.");
         }
 
-        productDTO.setId(id);
+        UserDTO userDTO = UserDTO.builder()
+                .email(auth.getName())
+                .build();
 
-        ProductEntity productEntity = productMapper.mapFrom(productDTO);
-        ProductEntity updatedEntity = productService.partialUpdate(id, productEntity);
+        productDTO.setSeller(userDTO);
+        ProductEntity productToModify = productMapper.mapFrom(productDTO);
+        ProductEntity updatedEntity = productService.partialUpdate(id, productToModify);
 
         return new ResponseEntity<>(productMapper.mapTo(updatedEntity), HttpStatus.OK);
     }
@@ -91,6 +113,11 @@ public class ProductController {
     @DeleteMapping("/products/{id}")
     public ResponseEntity<ProductDTO> deleteProduct(@PathVariable Long id){
 
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if(!productService.existsBySellerId(id, email) && productService.isExists(id)){
+           throw new InvalidProductOwnerException("Product owner does not match current user.");
+        }
         productService.delete(id);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

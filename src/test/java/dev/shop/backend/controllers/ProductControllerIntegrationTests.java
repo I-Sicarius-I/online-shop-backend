@@ -6,12 +6,20 @@ import dev.shop.backend.domain.entities.ProductEntity;
 import dev.shop.backend.domain.entities.UserEntity;
 import dev.shop.backend.service.ProductService;
 import dev.shop.backend.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,12 +31,14 @@ import tools.jackson.databind.ObjectMapper;
 @ExtendWith(SpringExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
+@WithMockUser("test@email.com")
 public class ProductControllerIntegrationTests {
 
     private final MockMvc mockMvc;
     private final ObjectMapper objectMapper;
     private final ProductService productService;
     private final UserService userService;
+    private UserDetails currentUser = null;
 
     @Autowired
     public ProductControllerIntegrationTests(MockMvc mockMvc, ProductService productService, UserService userService){
@@ -38,10 +48,30 @@ public class ProductControllerIntegrationTests {
         this.objectMapper = new ObjectMapper();
     }
 
+    @BeforeEach
+    public void createUser(){
+        UserDetails userDetails = null;
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principal instanceof UserDetails){
+            userDetails = (UserDetails) principal;
+        }
+
+        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(userDetails.getUsername());
+        user.setPassword(userDetails.getPassword());
+        user.setUsername("testUser");
+        user.setRole("ROLE_USER");
+
+        UserEntity savedUser = userService.save(user);
+        this.currentUser = userDetails;
+    }
+
     @Test
     public void testThatCreateProductReturnsHttpStatusCreated() throws Exception{
 
-        ProductEntity productA = TestDataUtilities.createProductEntityA(null);
+        UserEntity testUser = TestDataUtilities.createTestUserEntityAForRequests(currentUser.getUsername());
+
+        ProductEntity productA = TestDataUtilities.createProductEntityA(testUser);
 
         String productJSON = objectMapper.writeValueAsString(productA);
 
@@ -56,9 +86,9 @@ public class ProductControllerIntegrationTests {
 
     @Test
     public void testThatCreateProductReturnsProduct() throws Exception{
+        UserEntity testUser = TestDataUtilities.createTestUserEntityAForRequests(currentUser.getUsername());
 
-
-        ProductEntity productA = TestDataUtilities.createProductEntityA(null);
+        ProductEntity productA = TestDataUtilities.createProductEntityA(testUser);
 
         String productJSON = objectMapper.writeValueAsString(productA);
 
@@ -208,8 +238,10 @@ public class ProductControllerIntegrationTests {
     @Test
     public void testThatPartialProductUpdateReturnsHttpStatusOKWhenProductExists() throws Exception{
 
+        UserEntity testUser = TestDataUtilities.createTestUserEntityAForRequests(currentUser.getUsername());
 
-        ProductEntity productA = TestDataUtilities.createProductEntityA(null);
+        ProductEntity productA = TestDataUtilities.createProductEntityA(testUser);
+
         ProductEntity savedProduct = productService.save(productA);
 
         ProductDTO productDTO = TestDataUtilities.createProductDTOA(null);
@@ -245,10 +277,35 @@ public class ProductControllerIntegrationTests {
     }
 
     @Test
+    public void testThatPartialProductUpdateReturnsHttpStatusUnauthorizedWhenProductOwnerDoesntMatchCurrentUser() throws Exception{
+        UserEntity testUser = TestDataUtilities.createTestUserEntityA();
+        userService.save(testUser);
+
+        ProductEntity productA = TestDataUtilities.createProductEntityA(testUser);
+
+        ProductEntity savedProduct = productService.save(productA);
+
+        ProductDTO productDTO = TestDataUtilities.createProductDTOA(null);
+        productDTO.setName("UPDATED_NAME");
+
+        String productJSON = objectMapper.writeValueAsString(productDTO);
+
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.patch("/products/" + productA.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(productJSON)
+        ).andExpect(
+                MockMvcResultMatchers.status().isUnauthorized()
+        );
+    }
+
+    @Test
     public void testThatPartialProductUpdateReturnsUpdatedProduct() throws Exception{
 
+        UserEntity testUser = TestDataUtilities.createTestUserEntityAForRequests(currentUser.getUsername());
 
-        ProductEntity productA = TestDataUtilities.createProductEntityA(null);
+        ProductEntity productA = TestDataUtilities.createProductEntityA(testUser);
         ProductEntity savedProduct = productService.save(productA);
 
         ProductDTO productDTO = TestDataUtilities.createProductDTOA(null);
@@ -270,7 +327,9 @@ public class ProductControllerIntegrationTests {
     @Test
     public void testThatDeleteProductReturnsHttpStatusNoContentWhenProductExists() throws Exception{
 
-        ProductEntity productA = TestDataUtilities.createProductEntityA(null);
+        UserEntity testUser = TestDataUtilities.createTestUserEntityAForRequests(currentUser.getUsername());
+
+        ProductEntity productA = TestDataUtilities.createProductEntityA(testUser);
         ProductEntity savedProduct = productService.save(productA);
 
         mockMvc.perform(
@@ -289,6 +348,24 @@ public class ProductControllerIntegrationTests {
         ).andExpect(
                 MockMvcResultMatchers.status().isNoContent()
         );
+    }
+
+    @Test
+    public void testThatDeleteExisitngProductReturnsHttpStatusUnauthorizedWhenProductOwnerDoesNotMatchCurrentUser() throws Exception{
+        UserEntity testUser = TestDataUtilities.createTestUserEntityA();
+        userService.save(testUser);
+
+        ProductEntity productA = TestDataUtilities.createProductEntityA(testUser);
+
+        ProductEntity savedProduct = productService.save(productA);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/products/" + savedProduct.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(
+                MockMvcResultMatchers.status().isUnauthorized()
+        );
+
     }
 
 }

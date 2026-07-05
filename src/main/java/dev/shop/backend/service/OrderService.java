@@ -19,6 +19,8 @@ public interface OrderService {
 
     boolean isExists(Long id);
 
+    boolean existsByBuyerId(Long id, String email);
+
     OrderEntity partialUpdate(Long id, OrderEntity orderEntity);
 
     void delete(Long id);

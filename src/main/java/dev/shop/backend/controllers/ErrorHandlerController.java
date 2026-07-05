@@ -1,6 +1,8 @@
 package dev.shop.backend.controllers;
 
 import dev.shop.backend.domain.dto.security.ErrorResponse;
+import dev.shop.backend.exceptions.InvalidOrderOwnerException;
+import dev.shop.backend.exceptions.InvalidProductOwnerException;
 import dev.shop.backend.exceptions.UserAlreadyExistsException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -58,5 +60,38 @@ public class ErrorHandlerController {
                 .build();
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<ErrorResponse> nullPointerException(NullPointerException e){
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(e.getMessage())
+                .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidProductOwnerException.class)
+    public ResponseEntity<ErrorResponse> invalidProductOwnerException(InvalidProductOwnerException e){
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .message(e.getMessage())
+                .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(InvalidOrderOwnerException.class)
+    public ResponseEntity<ErrorResponse> invalidOrderOwnerException(InvalidOrderOwnerException e){
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .message(e.getMessage())
+                .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 }

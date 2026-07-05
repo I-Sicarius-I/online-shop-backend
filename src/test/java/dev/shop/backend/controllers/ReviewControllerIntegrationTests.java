@@ -9,12 +9,16 @@ import dev.shop.backend.service.ProductService;
 import dev.shop.backend.service.ReviewService;
 import dev.shop.backend.service.UserService;
 import dev.shop.backend.service.impl.ReviewServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,6 +30,7 @@ import tools.jackson.databind.ObjectMapper;
 @ExtendWith(SpringExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
+@WithMockUser("test@email.com")
 public class ReviewControllerIntegrationTests {
 
     private final MockMvc mockMvc;
@@ -33,6 +38,7 @@ public class ReviewControllerIntegrationTests {
     private final UserService userService;
     private final ProductService productService;
     private final ObjectMapper objectMapper;
+    private UserDetails currentUser;
 
     @Autowired
     public ReviewControllerIntegrationTests(MockMvc mockMvc, ReviewService reviewService, UserService userService, ProductService productService){
@@ -41,6 +47,24 @@ public class ReviewControllerIntegrationTests {
         this.userService = userService;
         this.productService = productService;
         this.objectMapper = new ObjectMapper();
+    }
+
+    @BeforeEach
+    public void createUser(){
+        UserDetails userDetails = null;
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(principal instanceof UserDetails){
+            userDetails = (UserDetails) principal;
+        }
+
+        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(userDetails.getUsername());
+        user.setPassword(userDetails.getPassword());
+        user.setUsername("testUser");
+        user.setRole("ROLE_USER");
+
+        UserEntity savedUser = userService.save(user);
+        this.currentUser = userDetails;
     }
 
     @Test
@@ -249,7 +273,9 @@ public class ReviewControllerIntegrationTests {
     @Test
     public void testThatPartialUpdateReviewReturnsHttpStatusOKWhenReviewExists() throws Exception{
 
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(null, null);
+        UserEntity userA = TestDataUtilities.createTestUserEntityAForRequests(currentUser.getUsername());
+
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(userA, null);
         ReviewEntity savedEntity = reviewService.save(reviewEntity);
 
         ReviewDTO reviewDTO = TestDataUtilities.createReviewDTOA(null, null);
@@ -284,9 +310,34 @@ public class ReviewControllerIntegrationTests {
     }
 
     @Test
-    public void testThatPartialUpdateReviewReturnsUpdatedReview() throws Exception{
+    public void testThatPartialUpdateReviewReturnsHttpStatusUnauthorizedWhenReviewOwnerDoesNotMatchCurrentUser() throws Exception{
+        UserEntity user = TestDataUtilities.createTestUserEntityA();
+        String email = userService.save(user).getEmail();
 
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(null, null);
+        UserEntity request = TestDataUtilities.createTestUserEntityAForRequests(email);
+
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(request, null);
+        ReviewEntity savedEntity = reviewService.save(reviewEntity);
+
+        ReviewDTO reviewDTO = TestDataUtilities.createReviewDTOA(null, null);
+        reviewDTO.setText("UPDATED_TEXT");
+
+        String reviewJSON = objectMapper.writeValueAsString(reviewDTO);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.patch("/reviews/" + savedEntity.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(reviewJSON)
+        ).andExpect(
+                MockMvcResultMatchers.status().isUnauthorized()
+        );
+    }
+
+    @Test
+    public void testThatPartialUpdateReviewReturnsUpdatedReview() throws Exception{
+        UserEntity userA = TestDataUtilities.createTestUserEntityAForRequests(currentUser.getUsername());
+
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(userA, null);
         ReviewEntity savedReview = reviewService.save(reviewEntity);
 
         ReviewDTO reviewDTO = TestDataUtilities.createReviewDTOA(null, null);
@@ -308,7 +359,9 @@ public class ReviewControllerIntegrationTests {
     @Test
     public void testThatDeleteReviewReturnsHttpStatusNoContentWhenReviewExists() throws Exception{
 
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(null, null);
+        UserEntity userA = TestDataUtilities.createTestUserEntityAForRequests(currentUser.getUsername());
+
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(userA, null);
         ReviewEntity savedReview = reviewService.save(reviewEntity);
 
         mockMvc.perform(
@@ -316,6 +369,25 @@ public class ReviewControllerIntegrationTests {
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(
                 MockMvcResultMatchers.status().isNoContent()
+        );
+    }
+
+    @Test
+    public void testThatDeleteReviewReturnsHttpStatusUnauthorizedWhenReviewOwnerDoesNotMatchCurrentUser() throws Exception{
+
+        UserEntity user = TestDataUtilities.createTestUserEntityA();
+        String email = userService.save(user).getEmail();
+
+        UserEntity request = TestDataUtilities.createTestUserEntityAForRequests(email);
+
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(request, null);
+        ReviewEntity savedReview = reviewService.save(reviewEntity);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/reviews/" + savedReview.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(
+                MockMvcResultMatchers.status().isUnauthorized()
         );
     }
 

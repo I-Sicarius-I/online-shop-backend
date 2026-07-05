@@ -4,12 +4,14 @@ import dev.shop.backend.TestDataUtilities;
 import dev.shop.backend.domain.dto.UserDTO;
 import dev.shop.backend.domain.entities.UserEntity;
 import dev.shop.backend.service.UserService;
+import lombok.With;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -32,44 +34,6 @@ public class UserControllerIntegrationTests {
         this.mockMvc = mockMvc;
         this.userService = userService;
         this.objectMapper = new ObjectMapper();
-    }
-
-    @Test
-    public void testThatCreateUserReturnsHttpStatusCreated() throws Exception{
-
-        UserEntity userEntityA = TestDataUtilities.createTestUserEntityA();
-
-        String userJSON = objectMapper.writeValueAsString(userEntityA);
-
-        mockMvc.perform(
-                MockMvcRequestBuilders.post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(userJSON)
-        ).andExpect(
-                MockMvcResultMatchers.status().isCreated()
-        );
-    }
-
-    @Test
-    public void testThatCreateUserReturnsSavedUser() throws Exception{
-
-        UserEntity userEntityA = TestDataUtilities.createTestUserEntityA();
-
-        String userJSON = objectMapper.writeValueAsString(userEntityA);
-
-        mockMvc.perform(
-                MockMvcRequestBuilders.post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(userJSON)
-        ).andExpect(
-                MockMvcResultMatchers.jsonPath("$.email").value("testusera@testmail.com")
-        ).andExpect(
-                MockMvcResultMatchers.jsonPath("$.username").value("TestUserA")
-        ).andExpect(
-                MockMvcResultMatchers.jsonPath("$.password").value("TestPassA")
-        ).andExpect(
-                MockMvcResultMatchers.jsonPath("$.about").value("Test user A is a user.")
-        );
     }
 
     @Test
@@ -203,6 +167,7 @@ public class UserControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser
     public void testThatPartialUpdateExistingUserReturnsHttpStatusOK() throws Exception{
 
         UserEntity userA = TestDataUtilities.createTestUserEntityA();
@@ -223,6 +188,7 @@ public class UserControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser
     public void testThatPartialUpdateNotExistingUserReturnsHttpStatusNotFound() throws Exception{
         UserDTO userDTO = TestDataUtilities.createTestUserDTOA();
         userDTO.setUsername("UPDATED_USERNAME");
@@ -239,6 +205,7 @@ public class UserControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser
     public void testThatPartialUpdateExistingUserReturnsUpdatedUser() throws Exception{
         UserEntity userA = TestDataUtilities.createTestUserEntityA();
         UserEntity savedUser = userService.save(userA);
@@ -262,6 +229,7 @@ public class UserControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser
     public void testThatDeleteUserReturnsHttpStatusNoContentWhenUserDoesNotExist() throws Exception{
         mockMvc.perform(
                 MockMvcRequestBuilders.delete("/users/random@testmail.com")
@@ -271,6 +239,7 @@ public class UserControllerIntegrationTests {
     }
 
     @Test
+    @WithMockUser
     public void testThatDeleteUserReturnsHttpStatusNoContentWhenUserExists() throws Exception{
         UserEntity userA = TestDataUtilities.createTestUserEntityA();
         userService.save(userA);

@@ -4,6 +4,7 @@ import dev.shop.backend.domain.dto.UserDTO;
 import dev.shop.backend.domain.entities.UserEntity;
 import dev.shop.backend.mappers.Mapper;
 import dev.shop.backend.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,24 +14,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
+@RequiredArgsConstructor
 public class UserController{
 
     private final UserService userService;
 
     private final Mapper<UserEntity, UserDTO> userMapper;
 
-    public UserController(UserService userService, Mapper<UserEntity, UserDTO> userMapper){
-        this.userService = userService;
-        this.userMapper = userMapper;
-    }
-
-//    @PostMapping("/users")
-//    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userRequest){
-//        UserEntity userEntity = userMapper.mapFrom(userRequest);
-//        UserEntity savedUser = userService.save(userEntity);
-//
-//        return new ResponseEntity<>(userMapper.mapTo(savedUser), HttpStatus.CREATED);
-//    }
 
     @GetMapping("/users")
     public ResponseEntity<List<UserDTO>> listUsers(){

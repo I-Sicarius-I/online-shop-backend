@@ -17,6 +17,8 @@ public interface ProductService {
 
     boolean isExists(Long id);
 
+    boolean existsBySellerId(Long prod_id, String email);
+
     ProductEntity partialUpdate(Long id, ProductEntity productEntity);
 
     void delete(Long id);

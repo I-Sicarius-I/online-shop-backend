@@ -55,6 +55,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public boolean existsBySellerId(Long prod_id, String email) { return productRepository.existsBySellerId(email, prod_id);}
+
+
+    @Override
     public ProductEntity partialUpdate(Long id, ProductEntity productEntity){
         productEntity.setId(id);
 

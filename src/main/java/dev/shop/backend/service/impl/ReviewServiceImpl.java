@@ -62,6 +62,9 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    public boolean existsByReviewerId(Long id, String email) { return reviewRepository.existsByReviewerId(id, email);}
+
+    @Override
     public ReviewEntity partialUpdate(Long id, ReviewEntity reviewEntity){
         return reviewRepository.findById(id).map(
                 existingReview -> {

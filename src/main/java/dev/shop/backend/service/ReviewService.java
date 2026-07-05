@@ -19,6 +19,8 @@ public interface ReviewService {
 
     boolean isExists(Long id);
 
+    boolean existsByReviewerId(Long id, String email);
+
     ReviewEntity partialUpdate(Long id, ReviewEntity reviewEntity);
 
     void delete(Long id);

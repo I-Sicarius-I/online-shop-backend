@@ -1,12 +1,18 @@
 package dev.shop.backend.controllers;
 
 import dev.shop.backend.domain.dto.OrderDTO;
+import dev.shop.backend.domain.dto.UserDTO;
 import dev.shop.backend.domain.entities.OrderEntity;
+import dev.shop.backend.domain.entities.ProductEntity;
+import dev.shop.backend.exceptions.InvalidOrderOwnerException;
 import dev.shop.backend.mappers.impl.OrderMapper;
 import dev.shop.backend.service.OrderService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,20 +20,24 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
+@RequiredArgsConstructor
 public class OrderController {
 
     private final OrderService orderService;
 
     private final OrderMapper orderMapper;
 
-    public OrderController(OrderService orderService, OrderMapper orderMapper){
-        this.orderService = orderService;
-        this.orderMapper = orderMapper;
-    }
-
     @PostMapping("/orders")
     public ResponseEntity<OrderDTO> createOrder(@RequestBody OrderDTO orderDTO){
 
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth.getName();
+
+        UserDTO userDTO = UserDTO.builder()
+                .email(email)
+                .build();
+
+        orderDTO.setBuyer(userDTO);
         OrderEntity orderEntity = orderMapper.mapFrom(orderDTO);
         OrderEntity savedOrder = orderService.save(orderEntity);
 
@@ -90,6 +100,19 @@ public class OrderController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if(!orderService.existsByBuyerId(id, auth.getName()))
+        {
+            throw new InvalidOrderOwnerException("Buyer does not match current user");
+        }
+
+        UserDTO userDTO = UserDTO.builder()
+                .email(auth.getName())
+                .build();
+
+        orderDTO.setBuyer(userDTO);
+
         OrderEntity orderEntity = orderMapper.mapFrom(orderDTO);
         OrderEntity updatedOrder = orderService.partialUpdate(id, orderEntity);
 
@@ -98,6 +121,13 @@ public class OrderController {
 
     @DeleteMapping("/orders/{id}")
     public ResponseEntity<OrderDTO> deleteOrder(@PathVariable Long id){
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if(orderService.isExists(id) && !orderService.existsByBuyerId(id, auth.getName()))
+        {
+            throw new InvalidOrderOwnerException("Buyer does not match current user");
+        }
 
         orderService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

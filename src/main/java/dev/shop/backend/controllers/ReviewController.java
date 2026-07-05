@@ -1,11 +1,16 @@
 package dev.shop.backend.controllers;
 
 import dev.shop.backend.domain.dto.ReviewDTO;
+import dev.shop.backend.domain.dto.UserDTO;
 import dev.shop.backend.domain.entities.ReviewEntity;
+import dev.shop.backend.exceptions.InvalidReviewOwnerException;
 import dev.shop.backend.mappers.impl.ReviewMapper;
 import dev.shop.backend.service.ReviewService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,22 +18,26 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
+@RequiredArgsConstructor
 public class ReviewController {
 
     private final ReviewService reviewService;
     private final ReviewMapper reviewMapper;
 
-    public ReviewController(ReviewService reviewService, ReviewMapper reviewMapper){
-        this.reviewService = reviewService;
-        this.reviewMapper = reviewMapper;
-    }
-
     @PostMapping("/reviews")
     public ResponseEntity<ReviewDTO> createReview(@RequestBody ReviewDTO reviewDTO){
 
+       String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+       UserDTO userDTO = UserDTO.builder()
+               .email(email)
+               .build();
+
+
+        reviewDTO.setReviewer(userDTO);
+
         ReviewEntity reviewEntity = reviewMapper.mapFrom(reviewDTO);
         ReviewEntity savedReview = reviewService.save(reviewEntity);
-
         return new ResponseEntity<>(reviewMapper.mapTo(savedReview), HttpStatus.CREATED);
     }
 
@@ -85,6 +94,19 @@ public class ReviewController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if(!reviewService.existsByReviewerId(id, auth.getName()))
+        {
+            throw new InvalidReviewOwnerException("Reviewer does not match current user.");
+        }
+
+        UserDTO userDTO = UserDTO.builder()
+                .email(auth.getName())
+                .build();
+
+        reviewDTO.setReviewer(userDTO);
+
         ReviewEntity reviewEntity = reviewMapper.mapFrom(reviewDTO);
         ReviewEntity updatedEntity = reviewService.partialUpdate(id, reviewEntity);
 
@@ -93,6 +115,13 @@ public class ReviewController {
 
     @DeleteMapping("/reviews/{id}")
     public ResponseEntity<ReviewDTO> deleteReview(@PathVariable Long id){
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if(reviewService.isExists(id) && !reviewService.existsByReviewerId(id, auth.getName()))
+        {
+            throw new InvalidReviewOwnerException("Reviewer does not match current user.");
+        }
 
         reviewService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
