@@ -29,12 +29,7 @@ public class ReviewController {
 
        String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-       UserDTO userDTO = UserDTO.builder()
-               .email(email)
-               .build();
-
-
-        reviewDTO.setReviewer(userDTO);
+        reviewDTO.setReviewerId(email);
 
         ReviewEntity reviewEntity = reviewMapper.mapFrom(reviewDTO);
         ReviewEntity savedReview = reviewService.save(reviewEntity);
@@ -101,11 +96,7 @@ public class ReviewController {
             throw new InvalidReviewOwnerException("Reviewer does not match current user.");
         }
 
-        UserDTO userDTO = UserDTO.builder()
-                .email(auth.getName())
-                .build();
-
-        reviewDTO.setReviewer(userDTO);
+        reviewDTO.setReviewerId(auth.getName());
 
         ReviewEntity reviewEntity = reviewMapper.mapFrom(reviewDTO);
         ReviewEntity updatedEntity = reviewService.partialUpdate(id, reviewEntity);

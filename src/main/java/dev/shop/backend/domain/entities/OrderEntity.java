@@ -29,9 +29,7 @@ public class OrderEntity {
 
     private Date dateReceived;
 
-    @ManyToOne
-    @JoinColumn(name = "buyer_id", referencedColumnName = "email")
-    private UserEntity buyer;
+    private String buyerId;
 
     @ManyToOne
     @JoinColumn(name = "product_id", referencedColumnName = "id")

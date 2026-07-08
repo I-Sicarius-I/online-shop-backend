@@ -26,5 +26,5 @@ public class ProductDTO {
 
     private Double rating;
 
-    private UserDTO seller;
+    private String sellerId;
 }

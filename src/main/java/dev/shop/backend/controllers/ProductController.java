@@ -33,11 +33,7 @@ public class ProductController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
 
-        UserDTO userDTO = UserDTO.builder()
-                .email(email)
-                .build();
-
-        productDTO.setSeller(userDTO);
+        productDTO.setSellerId(email);
 
         ProductEntity productEntity = productMapper.mapFrom(productDTO);
         ProductEntity savedProduct = productService.save(productEntity);
@@ -99,11 +95,8 @@ public class ProductController {
             throw new InvalidProductOwnerException("Product owner does not match current user.");
         }
 
-        UserDTO userDTO = UserDTO.builder()
-                .email(auth.getName())
-                .build();
 
-        productDTO.setSeller(userDTO);
+        productDTO.setSellerId(auth.getName());
         ProductEntity productToModify = productMapper.mapFrom(productDTO);
         ProductEntity updatedEntity = productService.partialUpdate(id, productToModify);
 

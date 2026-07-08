@@ -23,7 +23,7 @@ public class OrderDTO {
 
     private Date dateReceived;
 
-    private UserDTO buyer;
+    private String buyerId;
 
     private ProductDTO product;
 }

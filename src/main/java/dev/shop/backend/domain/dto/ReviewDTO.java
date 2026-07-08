@@ -19,5 +19,5 @@ public class ReviewDTO {
 
     private ProductDTO product;
 
-    private UserDTO reviewer;
+    private String reviewerId;
 }

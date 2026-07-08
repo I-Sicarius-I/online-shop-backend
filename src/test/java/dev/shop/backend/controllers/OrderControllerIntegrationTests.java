@@ -132,19 +132,17 @@ public class OrderControllerIntegrationTests {
         UserEntity userA = TestDataUtilities.createTestUserEntityA();
         UserEntity savedUser = userService.save(userA);
 
-        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(savedUser.getEmail());
-
-        ProductEntity productEntity = TestDataUtilities.createProductEntityA(user);
+        ProductEntity productEntity = TestDataUtilities.createProductEntityA(savedUser.getEmail());
         ProductEntity savedProduct = productService.save(productEntity);
 
-        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(user.getEmail(), savedProduct.getId());
+        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(savedUser.getEmail(), savedProduct.getId());
 
-        OrderEntity order = TestDataUtilities.createOrderEntityA(user, product);
+        OrderEntity order = TestDataUtilities.createOrderEntityA(savedUser.getEmail(), product);
         OrderEntity savedOrder = orderService.save(order);
 
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/orders?email=" + user.getEmail())
+                MockMvcRequestBuilders.get("/orders?email=" + savedUser.getEmail())
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(
                 MockMvcResultMatchers.status().isOk()
@@ -156,19 +154,17 @@ public class OrderControllerIntegrationTests {
         UserEntity userA = TestDataUtilities.createTestUserEntityA();
         UserEntity savedUser = userService.save(userA);
 
-        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(savedUser.getEmail());
-
-        ProductEntity productEntity = TestDataUtilities.createProductEntityA(user);
+        ProductEntity productEntity = TestDataUtilities.createProductEntityA(savedUser.getEmail());
         ProductEntity savedProduct = productService.save(productEntity);
 
-        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(user.getEmail(), savedProduct.getId());
+        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(savedUser.getEmail(), savedProduct.getId());
 
-        OrderEntity order = TestDataUtilities.createOrderEntityA(user, product);
+        OrderEntity order = TestDataUtilities.createOrderEntityA(savedUser.getEmail(), product);
         OrderEntity savedOrder = orderService.save(order);
 
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/orders?email=" + user.getEmail())
+                MockMvcRequestBuilders.get("/orders?email=" + savedUser.getEmail())
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(
                 MockMvcResultMatchers.jsonPath("$[0].quantity").value(savedOrder.getQuantity())
@@ -180,15 +176,13 @@ public class OrderControllerIntegrationTests {
         UserEntity userA = TestDataUtilities.createTestUserEntityA();
         UserEntity savedUser = userService.save(userA);
 
-        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(savedUser.getEmail());
 
-
-        ProductEntity productEntity = TestDataUtilities.createProductEntityA(user);
+        ProductEntity productEntity = TestDataUtilities.createProductEntityA(savedUser.getEmail());
         ProductEntity savedProduct = productService.save(productEntity);
 
-        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(user.getEmail(), savedProduct.getId());
+        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(savedUser.getEmail(), savedProduct.getId());
 
-        OrderEntity order = TestDataUtilities.createOrderEntityA(user, product);
+        OrderEntity order = TestDataUtilities.createOrderEntityA(savedUser.getEmail(), product);
         OrderEntity savedOrder = orderService.save(order);
 
         mockMvc.perform(
@@ -204,17 +198,15 @@ public class OrderControllerIntegrationTests {
         UserEntity userA = TestDataUtilities.createTestUserEntityA();
         UserEntity savedUser = userService.save(userA);
 
-        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(savedUser.getEmail());
 
-
-        ProductEntity productEntity = TestDataUtilities.createProductEntityA(user);
+        ProductEntity productEntity = TestDataUtilities.createProductEntityA(savedUser.getEmail());
         ProductEntity savedProduct = productService.save(productEntity);
 
-        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(user.getEmail(), savedProduct.getId());
+        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(savedUser.getEmail(), savedProduct.getId());
 
         productEntity.setId(savedProduct.getId());
 
-        OrderEntity order = TestDataUtilities.createOrderEntityA(user, product);
+        OrderEntity order = TestDataUtilities.createOrderEntityA(savedUser.getEmail(), product);
         OrderEntity savedOrder = orderService.save(order);
 
 
@@ -229,7 +221,7 @@ public class OrderControllerIntegrationTests {
     @Test
     public void testThatGetOrderReturnsHttpStatusOKWhenOrderExists() throws Exception{
 
-        OrderEntity order = TestDataUtilities.createOrderEntityA(null, null);
+        OrderEntity order = TestDataUtilities.createOrderEntityA(currentUser.getUsername(), null);
         OrderEntity savedOrders = orderService.save(order);
 
         mockMvc.perform(
@@ -253,7 +245,7 @@ public class OrderControllerIntegrationTests {
     @Test
     public void testThatGetOrderReturnsFoundOrder() throws Exception{
 
-        OrderEntity order = TestDataUtilities.createOrderEntityA(null, null);
+        OrderEntity order = TestDataUtilities.createOrderEntityA(currentUser.getUsername(), null);
         OrderEntity savedOrder = orderService.save(order);
 
         mockMvc.perform(
@@ -266,12 +258,10 @@ public class OrderControllerIntegrationTests {
     @Test
     public void testThatPartialUpdateOrderReturnsHttpStatusOKWhenOrderExists() throws Exception{
 
-        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(currentUser.getUsername());
-
-        OrderEntity order = TestDataUtilities.createOrderEntityA(user, null);
+        OrderEntity order = TestDataUtilities.createOrderEntityA(currentUser.getUsername(), null);
         OrderEntity savedOrder = orderService.save(order);
 
-        OrderDTO orderDTO = TestDataUtilities.createOrderDTOA(null, null);
+        OrderDTO orderDTO = TestDataUtilities.createOrderDTOA(currentUser.getUsername(), null);
         orderDTO.setQuantity(123L);
 
         String orderJSON = objectMapper.writeValueAsString(orderDTO);
@@ -288,7 +278,7 @@ public class OrderControllerIntegrationTests {
     @Test
     public void testThatPartialUpdateOrderReturnsHttpStatusNotFoundWhenOrderDoesNotExist() throws Exception{
 
-        OrderDTO orderDTO = TestDataUtilities.createOrderDTOA(null, null);
+        OrderDTO orderDTO = TestDataUtilities.createOrderDTOA(currentUser.getUsername(), null);
         orderDTO.setQuantity(123L);
 
         String orderJSON = objectMapper.writeValueAsString(orderDTO);
@@ -308,11 +298,10 @@ public class OrderControllerIntegrationTests {
         UserEntity user = TestDataUtilities.createTestUserEntityA();
         String email = userService.save(user).getEmail();
 
-        UserEntity request = TestDataUtilities.createTestUserEntityAForRequests(email);
-        OrderEntity order = TestDataUtilities.createOrderEntityA(request, null);
+        OrderEntity order = TestDataUtilities.createOrderEntityA(email, null);
         OrderEntity savedOrder = orderService.save(order);
 
-        OrderDTO orderDTO = TestDataUtilities.createOrderDTOA(null, null);
+        OrderDTO orderDTO = TestDataUtilities.createOrderDTOA(currentUser.getUsername(), null);
         orderDTO.setQuantity(123L);
 
         String orderJSON = objectMapper.writeValueAsString(orderDTO);
@@ -329,11 +318,10 @@ public class OrderControllerIntegrationTests {
     @Test
     public void testThatPartialUpdateOrderReturnsUpdatedOrder() throws Exception{
 
-        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(currentUser.getUsername());
+        OrderEntity order = TestDataUtilities.createOrderEntityA(currentUser.getUsername(), null);
+        OrderEntity savedOrder = orderService.save(order);
 
-        OrderEntity order = TestDataUtilities.createOrderEntityA(user, null);        OrderEntity savedOrder = orderService.save(order);
-
-        OrderDTO orderDTO = TestDataUtilities.createOrderDTOA(null, null);
+        OrderDTO orderDTO = TestDataUtilities.createOrderDTOA(currentUser.getUsername(), null);
         orderDTO.setQuantity(123L);
 
         String orderJSON = objectMapper.writeValueAsString(orderDTO);
@@ -350,9 +338,8 @@ public class OrderControllerIntegrationTests {
     @Test
     public void testThatDeleteOrderReturnsHttpStatusNoContentWhenOrderExists() throws Exception{
 
-        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(currentUser.getUsername());
 
-        OrderEntity order = TestDataUtilities.createOrderEntityA(user, null);
+        OrderEntity order = TestDataUtilities.createOrderEntityA(currentUser.getUsername(), null);
         OrderEntity savedOrder = orderService.save(order);
 
         mockMvc.perform(
@@ -369,9 +356,7 @@ public class OrderControllerIntegrationTests {
         UserEntity user = TestDataUtilities.createTestUserEntityA();
         String email = userService.save(user).getEmail();
 
-        UserEntity request = TestDataUtilities.createTestUserEntityAForRequests(email);
-
-        OrderEntity order = TestDataUtilities.createOrderEntityA(request, null);
+        OrderEntity order = TestDataUtilities.createOrderEntityA(email, null);
         OrderEntity savedOrder = orderService.save(order);
 
         mockMvc.perform(

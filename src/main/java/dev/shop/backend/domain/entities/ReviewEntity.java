@@ -26,7 +26,5 @@ public class ReviewEntity {
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private ProductEntity product;
 
-    @ManyToOne
-    @JoinColumn(name = "reviewer_id", referencedColumnName = "email")
-    private UserEntity reviewer;
+    private String reviewerId;
 }

@@ -33,11 +33,7 @@ public class OrderController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
 
-        UserDTO userDTO = UserDTO.builder()
-                .email(email)
-                .build();
-
-        orderDTO.setBuyer(userDTO);
+        orderDTO.setBuyerId(email);
         OrderEntity orderEntity = orderMapper.mapFrom(orderDTO);
         OrderEntity savedOrder = orderService.save(orderEntity);
 
@@ -107,11 +103,7 @@ public class OrderController {
             throw new InvalidOrderOwnerException("Buyer does not match current user");
         }
 
-        UserDTO userDTO = UserDTO.builder()
-                .email(auth.getName())
-                .build();
-
-        orderDTO.setBuyer(userDTO);
+        orderDTO.setBuyerId(auth.getName());
 
         OrderEntity orderEntity = orderMapper.mapFrom(orderDTO);
         OrderEntity updatedOrder = orderService.partialUpdate(id, orderEntity);

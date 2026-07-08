@@ -13,9 +13,9 @@ import java.util.Optional;
 @Repository
 public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 
-    @Query(value = "SELECT p FROM ProductEntity p WHERE p.seller.email = :seller_id")
+    @Query(value = "SELECT p FROM ProductEntity p WHERE p.sellerId = :seller_id")
     public List<ProductEntity> findProductsBySellerId(@Param("seller_id") String seller_id);
 
-    @Query(value = "SELECT EXISTS(SELECT p FROM ProductEntity p WHERE p.seller.email = :seller_id AND p.id = :id)")
+    @Query(value = "SELECT EXISTS(SELECT p FROM ProductEntity p WHERE p.sellerId = :seller_id AND p.id = :id)")
     public boolean existsBySellerId(@Param("seller_id") String seller_id, @Param("id") Long id);
 }

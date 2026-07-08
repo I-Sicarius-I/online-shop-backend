@@ -70,7 +70,7 @@ public class ReviewControllerIntegrationTests {
     @Test
     public void testThatCreateReviewReturnsHttpStatusCreated() throws Exception{
 
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(null, null);
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(currentUser.getUsername(), null);
 
         String reviewJSON = objectMapper.writeValueAsString(reviewEntity);
 
@@ -86,7 +86,7 @@ public class ReviewControllerIntegrationTests {
     @Test
     public void testThatCreateReviewReturnsCreatedReview() throws Exception{
 
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(null, null);
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(currentUser.getUsername(), null);
 
         String reviewJSON = objectMapper.writeValueAsString(reviewEntity);
 
@@ -104,7 +104,7 @@ public class ReviewControllerIntegrationTests {
     @Test
     public void testThatListAllReviewsReturnsHttpStausOK() throws Exception{
 
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(null, null);
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(currentUser.getUsername(), null);
         reviewService.save(reviewEntity);
 
         mockMvc.perform(
@@ -118,7 +118,7 @@ public class ReviewControllerIntegrationTests {
     @Test
     public void testThatListAllReviewsReturnsListOfReviews() throws Exception{
 
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(null, null);
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(currentUser.getUsername(), null);
         reviewService.save(reviewEntity);
 
         mockMvc.perform(
@@ -138,18 +138,16 @@ public class ReviewControllerIntegrationTests {
         UserEntity userA = TestDataUtilities.createTestUserEntityA();
         UserEntity savedUser = userService.save(userA);
 
-        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(savedUser.getEmail());
-
-        ProductEntity productEntity = TestDataUtilities.createProductEntityA(user);
+        ProductEntity productEntity = TestDataUtilities.createProductEntityA(savedUser.getEmail());
         ProductEntity savedProduct = productService.save(productEntity);
 
-        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(user.getEmail(), savedProduct.getId());
+        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(savedUser.getEmail(), savedProduct.getId());
 
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(user, product);
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(savedUser.getEmail(), product);
         reviewService.save(reviewEntity);
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/reviews?email=" + user.getEmail())
+                MockMvcRequestBuilders.get("/reviews?email=" + savedUser.getEmail())
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(
                 MockMvcResultMatchers.status().isOk()
@@ -164,12 +162,12 @@ public class ReviewControllerIntegrationTests {
 
         UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(savedUser.getEmail());
 
-        ProductEntity productEntity = TestDataUtilities.createProductEntityA(user);
+        ProductEntity productEntity = TestDataUtilities.createProductEntityA(savedUser.getEmail());
         ProductEntity savedProduct = productService.save(productEntity);
 
         ProductEntity product = TestDataUtilities.createProductEntityAForRequests(user.getEmail(), savedProduct.getId());
 
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(user, product);
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(savedUser.getEmail(), product);
         reviewService.save(reviewEntity);
 
         mockMvc.perform(
@@ -189,12 +187,12 @@ public class ReviewControllerIntegrationTests {
 
         UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(savedUser.getEmail());
 
-        ProductEntity productEntity = TestDataUtilities.createProductEntityA(user);
+        ProductEntity productEntity = TestDataUtilities.createProductEntityA(savedUser.getEmail());
         ProductEntity savedProduct = productService.save(productEntity);
 
         ProductEntity product = TestDataUtilities.createProductEntityAForRequests(user.getEmail(), savedProduct.getId());
 
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(user, product);
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(savedUser.getEmail(), product);
         reviewService.save(reviewEntity);
 
         mockMvc.perform(
@@ -210,14 +208,12 @@ public class ReviewControllerIntegrationTests {
         UserEntity userA = TestDataUtilities.createTestUserEntityA();
         UserEntity savedUser = userService.save(userA);
 
-        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(savedUser.getEmail());
-
-        ProductEntity productEntity = TestDataUtilities.createProductEntityA(user);
+        ProductEntity productEntity = TestDataUtilities.createProductEntityA(savedUser.getEmail());
         ProductEntity savedProduct = productService.save(productEntity);
 
-        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(user.getEmail(), savedProduct.getId());
+        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(savedUser.getEmail(), savedProduct.getId());
 
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(user, product);
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(savedUser.getEmail(), product);
         reviewService.save(reviewEntity);
 
         mockMvc.perform(
@@ -232,7 +228,7 @@ public class ReviewControllerIntegrationTests {
     @Test
     public void testThatGetReviewReturnsHttpStatusOKWhenReviewExists() throws Exception{
 
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(null, null);
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(currentUser.getUsername(), null);
         ReviewEntity savedReview = reviewService.save(reviewEntity);
 
         mockMvc.perform(
@@ -257,7 +253,7 @@ public class ReviewControllerIntegrationTests {
     @Test
     public void testThatGetReviewReturnsFoundReview() throws Exception{
 
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(null, null);
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(currentUser.getUsername(), null);
         ReviewEntity savedReview = reviewService.save(reviewEntity);
 
         mockMvc.perform(
@@ -273,12 +269,10 @@ public class ReviewControllerIntegrationTests {
     @Test
     public void testThatPartialUpdateReviewReturnsHttpStatusOKWhenReviewExists() throws Exception{
 
-        UserEntity userA = TestDataUtilities.createTestUserEntityAForRequests(currentUser.getUsername());
-
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(userA, null);
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(currentUser.getUsername(), null);
         ReviewEntity savedEntity = reviewService.save(reviewEntity);
 
-        ReviewDTO reviewDTO = TestDataUtilities.createReviewDTOA(null, null);
+        ReviewDTO reviewDTO = TestDataUtilities.createReviewDTOA(currentUser.getUsername(), null);
         reviewDTO.setText("UPDATED_TEXT");
 
         String reviewJSON = objectMapper.writeValueAsString(reviewDTO);
@@ -295,7 +289,7 @@ public class ReviewControllerIntegrationTests {
     @Test
     public void testThatPartialUpdateReviewReturnsHttpStatusNotFoundWhenReviewDoesNotExist() throws Exception{
 
-        ReviewDTO reviewDTO = TestDataUtilities.createReviewDTOA(null, null);
+        ReviewDTO reviewDTO = TestDataUtilities.createReviewDTOA(currentUser.getUsername(), null);
         reviewDTO.setText("UPDATED_TEXT");
 
         String reviewJSON = objectMapper.writeValueAsString(reviewDTO);
@@ -314,12 +308,10 @@ public class ReviewControllerIntegrationTests {
         UserEntity user = TestDataUtilities.createTestUserEntityA();
         String email = userService.save(user).getEmail();
 
-        UserEntity request = TestDataUtilities.createTestUserEntityAForRequests(email);
-
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(request, null);
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(email, null);
         ReviewEntity savedEntity = reviewService.save(reviewEntity);
 
-        ReviewDTO reviewDTO = TestDataUtilities.createReviewDTOA(null, null);
+        ReviewDTO reviewDTO = TestDataUtilities.createReviewDTOA(currentUser.getUsername(), null);
         reviewDTO.setText("UPDATED_TEXT");
 
         String reviewJSON = objectMapper.writeValueAsString(reviewDTO);
@@ -335,12 +327,11 @@ public class ReviewControllerIntegrationTests {
 
     @Test
     public void testThatPartialUpdateReviewReturnsUpdatedReview() throws Exception{
-        UserEntity userA = TestDataUtilities.createTestUserEntityAForRequests(currentUser.getUsername());
 
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(userA, null);
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(currentUser.getUsername(), null);
         ReviewEntity savedReview = reviewService.save(reviewEntity);
 
-        ReviewDTO reviewDTO = TestDataUtilities.createReviewDTOA(null, null);
+        ReviewDTO reviewDTO = TestDataUtilities.createReviewDTOA(currentUser.getUsername(), null);
         reviewDTO.setText("UPDATED_TEXT");
 
         String reviewJSON = objectMapper.writeValueAsString(reviewDTO);
@@ -359,9 +350,7 @@ public class ReviewControllerIntegrationTests {
     @Test
     public void testThatDeleteReviewReturnsHttpStatusNoContentWhenReviewExists() throws Exception{
 
-        UserEntity userA = TestDataUtilities.createTestUserEntityAForRequests(currentUser.getUsername());
-
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(userA, null);
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(currentUser.getUsername(), null);
         ReviewEntity savedReview = reviewService.save(reviewEntity);
 
         mockMvc.perform(
@@ -378,9 +367,7 @@ public class ReviewControllerIntegrationTests {
         UserEntity user = TestDataUtilities.createTestUserEntityA();
         String email = userService.save(user).getEmail();
 
-        UserEntity request = TestDataUtilities.createTestUserEntityAForRequests(email);
-
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(request, null);
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(email, null);
         ReviewEntity savedReview = reviewService.save(reviewEntity);
 
         mockMvc.perform(

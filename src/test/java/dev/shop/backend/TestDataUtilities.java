@@ -4,7 +4,6 @@ import dev.shop.backend.domain.dto.OrderDTO;
 import dev.shop.backend.domain.dto.ProductDTO;
 import dev.shop.backend.domain.dto.ReviewDTO;
 import dev.shop.backend.domain.dto.UserDTO;
-import dev.shop.backend.domain.dto.security.LoginRequest;
 import dev.shop.backend.domain.dto.security.RegisterRequest;
 import dev.shop.backend.domain.entities.OrderEntity;
 import dev.shop.backend.domain.entities.ProductEntity;
@@ -54,7 +53,7 @@ public final class TestDataUtilities {
                 .build();
     }
 
-    public static ProductEntity createProductEntityA(final UserEntity userEntity){
+    public static ProductEntity createProductEntityA(final String email){
         return ProductEntity.builder()
                 .name("Test product A")
                 .type("Test")
@@ -63,21 +62,19 @@ public final class TestDataUtilities {
                 .description("A test product, brand new")
                 .price(123.)
                 .rating(10.)
-                .seller(userEntity)
+                .sellerId(email)
                 .build();
     }
 
     public static ProductEntity createProductEntityAForRequests(String email, Long id){
 
-        UserEntity userEntity = TestDataUtilities.createTestUserEntityAForRequests(email);
-
         return ProductEntity.builder()
                 .id(id)
-                .seller(userEntity)
+                .sellerId(email)
                 .build();
     }
 
-    public static ProductDTO createProductDTOA(final UserDTO userDTO){
+    public static ProductDTO createProductDTOA(final String email){
         return ProductDTO.builder()
                 .name("Test product A")
                 .type("Test")
@@ -86,21 +83,20 @@ public final class TestDataUtilities {
                 .description("A test product, brand new")
                 .price(123.)
                 .rating(10.)
-                .seller(userDTO)
+                .sellerId(email)
                 .build();
     }
 
     public static ProductDTO createProductDTOAForRequests(String email, Long id){
 
-        UserDTO userDTO = TestDataUtilities.createTestUserDTOAForRequests(email);
 
         return ProductDTO.builder()
                 .id(id)
-                .seller(userDTO)
+                .sellerId(email)
                 .build();
     }
 
-    public static OrderEntity createOrderEntityA(final UserEntity userEntity, final ProductEntity productEntity){
+    public static OrderEntity createOrderEntityA(final String email, final ProductEntity productEntity){
         Instant baseDate = Instant.parse("2026-06-23T10:00:00Z");
 
         Date dateOrdered = Date.from(baseDate.minus(3, ChronoUnit.DAYS));
@@ -112,12 +108,12 @@ public final class TestDataUtilities {
                 .dateOrdered(dateOrdered)
                 .dateShipped(dateShipped)
                 .dateReceived(dateReceived)
-                .buyer(userEntity)
+                .buyerId(email)
                 .product(productEntity)
                 .build();
     }
 
-    public static OrderDTO createOrderDTOA(final UserDTO userDTO, final ProductDTO productDTO){
+    public static OrderDTO createOrderDTOA(final String email, final ProductDTO productDTO){
         Instant baseDate = Instant.parse("2026-06-23T10:00:00Z");
 
         Date dateOrdered = Date.from(baseDate.minus(3, ChronoUnit.DAYS));
@@ -129,25 +125,25 @@ public final class TestDataUtilities {
                 .dateOrdered(dateOrdered)
                 .dateShipped(dateShipped)
                 .dateReceived(dateReceived)
-                .buyer(userDTO)
+                .buyerId(email)
                 .product(productDTO)
                 .build();
     }
 
-    public static ReviewEntity createReviewEntityA(final UserEntity userEntity, final ProductEntity productEntity){
+    public static ReviewEntity createReviewEntityA(final String email, final ProductEntity productEntity){
         return ReviewEntity.builder()
                 .text("Good test product")
                 .rating(10)
-                .reviewer(userEntity)
+                .reviewerId(email)
                 .product(productEntity)
                 .build();
     }
 
-    public static ReviewDTO createReviewDTOA(final UserDTO userDTO, final ProductDTO productDTO){
+    public static ReviewDTO createReviewDTOA(final String email, final ProductDTO productDTO){
         return ReviewDTO.builder()
                 .text("Good test product")
                 .rating(10)
-                .reviewer(userDTO)
+                .reviewerId(email)
                 .product(productDTO)
                 .build();
     }

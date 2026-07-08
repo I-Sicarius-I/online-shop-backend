@@ -31,13 +31,16 @@ public class UserEntity {
 
     private String about;
 
-    @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    @OneToMany(mappedBy = "sellerId", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductEntity> products = new ArrayList<>();
 
-    @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    @OneToMany(mappedBy = "reviewerId", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewEntity> reviewEntities = new ArrayList<>();
 
-    @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    @OneToMany(mappedBy = "buyerId", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderEntity> orderEntities = new ArrayList<>();
 
     @Override

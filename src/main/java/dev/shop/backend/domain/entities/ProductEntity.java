@@ -37,14 +37,14 @@ public class ProductEntity {
 
     private Double rating;
 
+    @Builder.Default
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderEntity> orders = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewEntity> reviews = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "seller_id", referencedColumnName = "email")
-    private UserEntity seller;
+    private String sellerId;
 
 }

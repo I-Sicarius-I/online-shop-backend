@@ -69,9 +69,7 @@ public class ProductControllerIntegrationTests {
     @Test
     public void testThatCreateProductReturnsHttpStatusCreated() throws Exception{
 
-        UserEntity testUser = TestDataUtilities.createTestUserEntityAForRequests(currentUser.getUsername());
-
-        ProductEntity productA = TestDataUtilities.createProductEntityA(testUser);
+        ProductEntity productA = TestDataUtilities.createProductEntityA(currentUser.getUsername());
 
         String productJSON = objectMapper.writeValueAsString(productA);
 
@@ -86,9 +84,7 @@ public class ProductControllerIntegrationTests {
 
     @Test
     public void testThatCreateProductReturnsProduct() throws Exception{
-        UserEntity testUser = TestDataUtilities.createTestUserEntityAForRequests(currentUser.getUsername());
-
-        ProductEntity productA = TestDataUtilities.createProductEntityA(testUser);
+        ProductEntity productA = TestDataUtilities.createProductEntityA(currentUser.getUsername());
 
         String productJSON = objectMapper.writeValueAsString(productA);
 
@@ -116,7 +112,7 @@ public class ProductControllerIntegrationTests {
     @Test
     public void testThatListAllReturnsHttpStatusOK() throws Exception{
 
-        ProductEntity productA = TestDataUtilities.createProductEntityA(null);
+        ProductEntity productA = TestDataUtilities.createProductEntityA(currentUser.getUsername());
         ProductEntity savedProduct = productService.save(productA);
 
         mockMvc.perform(
@@ -130,7 +126,7 @@ public class ProductControllerIntegrationTests {
     public void testThatListAllReturnsListOfProducts() throws Exception{
 
 
-        ProductEntity productA = TestDataUtilities.createProductEntityA(null);
+        ProductEntity productA = TestDataUtilities.createProductEntityA(currentUser.getUsername());
         ProductEntity savedProduct = productService.save(productA);
 
         mockMvc.perform(
@@ -152,7 +148,7 @@ public class ProductControllerIntegrationTests {
 
         UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(savedUser.getEmail());
 
-        ProductEntity productA = TestDataUtilities.createProductEntityA(user);
+        ProductEntity productA = TestDataUtilities.createProductEntityA(savedUser.getEmail());
         productService.save(productA);
 
 
@@ -169,13 +165,11 @@ public class ProductControllerIntegrationTests {
         UserEntity userA = TestDataUtilities.createTestUserEntityA();
         UserEntity savedUser = userService.save(userA);
 
-        UserEntity user = TestDataUtilities.createTestUserEntityAForRequests(savedUser.getEmail());
-
-        ProductEntity productA = TestDataUtilities.createProductEntityA(user);
+        ProductEntity productA = TestDataUtilities.createProductEntityA(savedUser.getEmail());
         productService.save(productA);
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/products?email=" + user.getEmail())
+                MockMvcRequestBuilders.get("/products?email=" + savedUser.getEmail())
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(
                 MockMvcResultMatchers.jsonPath("$[0].name").value(productA.getName())
@@ -197,7 +191,7 @@ public class ProductControllerIntegrationTests {
     @Test
     public void testThatGetProductReturnsHttpStatusOKWhenProductExists() throws Exception{
 
-        ProductEntity productA = TestDataUtilities.createProductEntityA(null);
+        ProductEntity productA = TestDataUtilities.createProductEntityA(currentUser.getUsername());
         ProductEntity savedProduct = productService.save(productA);
 
         mockMvc.perform(
@@ -221,7 +215,7 @@ public class ProductControllerIntegrationTests {
     @Test
     public void testThatGetProductReturnsProduct() throws Exception{
 
-        ProductEntity productA = TestDataUtilities.createProductEntityA(null);
+        ProductEntity productA = TestDataUtilities.createProductEntityA(currentUser.getUsername());
         ProductEntity savedProduct = productService.save(productA);
 
         mockMvc.perform(
@@ -238,13 +232,11 @@ public class ProductControllerIntegrationTests {
     @Test
     public void testThatPartialProductUpdateReturnsHttpStatusOKWhenProductExists() throws Exception{
 
-        UserEntity testUser = TestDataUtilities.createTestUserEntityAForRequests(currentUser.getUsername());
-
-        ProductEntity productA = TestDataUtilities.createProductEntityA(testUser);
+        ProductEntity productA = TestDataUtilities.createProductEntityA(currentUser.getUsername());
 
         ProductEntity savedProduct = productService.save(productA);
 
-        ProductDTO productDTO = TestDataUtilities.createProductDTOA(null);
+        ProductDTO productDTO = TestDataUtilities.createProductDTOA(currentUser.getUsername());
         productDTO.setName("UPDATED_NAME");
 
         String productJSON = objectMapper.writeValueAsString(productDTO);
@@ -262,7 +254,7 @@ public class ProductControllerIntegrationTests {
     @Test
     public void testThatPartialProductUpdateReturnsHttpStatusNotFoundWhenProductDoesNotExist() throws Exception{
 
-        ProductDTO productDTO = TestDataUtilities.createProductDTOA(null);
+        ProductDTO productDTO = TestDataUtilities.createProductDTOA(currentUser.getUsername());
         productDTO.setName("UPDATED_NAME");
 
         String productJSON = objectMapper.writeValueAsString(productDTO);
@@ -281,11 +273,11 @@ public class ProductControllerIntegrationTests {
         UserEntity testUser = TestDataUtilities.createTestUserEntityA();
         userService.save(testUser);
 
-        ProductEntity productA = TestDataUtilities.createProductEntityA(testUser);
+        ProductEntity productA = TestDataUtilities.createProductEntityA(testUser.getEmail());
 
         ProductEntity savedProduct = productService.save(productA);
 
-        ProductDTO productDTO = TestDataUtilities.createProductDTOA(null);
+        ProductDTO productDTO = TestDataUtilities.createProductDTOA(currentUser.getUsername());
         productDTO.setName("UPDATED_NAME");
 
         String productJSON = objectMapper.writeValueAsString(productDTO);
@@ -303,12 +295,10 @@ public class ProductControllerIntegrationTests {
     @Test
     public void testThatPartialProductUpdateReturnsUpdatedProduct() throws Exception{
 
-        UserEntity testUser = TestDataUtilities.createTestUserEntityAForRequests(currentUser.getUsername());
-
-        ProductEntity productA = TestDataUtilities.createProductEntityA(testUser);
+        ProductEntity productA = TestDataUtilities.createProductEntityA(currentUser.getUsername());
         ProductEntity savedProduct = productService.save(productA);
 
-        ProductDTO productDTO = TestDataUtilities.createProductDTOA(null);
+        ProductDTO productDTO = TestDataUtilities.createProductDTOA(currentUser.getUsername());
         productDTO.setName("UPDATED_NAME");
 
         String productJSON = objectMapper.writeValueAsString(productDTO);
@@ -327,9 +317,7 @@ public class ProductControllerIntegrationTests {
     @Test
     public void testThatDeleteProductReturnsHttpStatusNoContentWhenProductExists() throws Exception{
 
-        UserEntity testUser = TestDataUtilities.createTestUserEntityAForRequests(currentUser.getUsername());
-
-        ProductEntity productA = TestDataUtilities.createProductEntityA(testUser);
+        ProductEntity productA = TestDataUtilities.createProductEntityA(currentUser.getUsername());
         ProductEntity savedProduct = productService.save(productA);
 
         mockMvc.perform(
@@ -355,7 +343,7 @@ public class ProductControllerIntegrationTests {
         UserEntity testUser = TestDataUtilities.createTestUserEntityA();
         userService.save(testUser);
 
-        ProductEntity productA = TestDataUtilities.createProductEntityA(testUser);
+        ProductEntity productA = TestDataUtilities.createProductEntityA(testUser.getEmail());
 
         ProductEntity savedProduct = productService.save(productA);
 
