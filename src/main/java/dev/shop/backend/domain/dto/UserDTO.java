@@ -15,6 +15,16 @@ public class UserDTO {
 
     private String username;
 
+    private String fname;
+
+    private String lname;
+
+    private String address;
+
+    private String city;
+
+    private String code;
+
     private String role;
 
     private String password;

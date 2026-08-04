@@ -7,6 +7,7 @@ import dev.shop.backend.service.UserService;
 import lombok.With;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -67,6 +68,16 @@ public class UserControllerIntegrationTests {
         ).andExpect(
                 MockMvcResultMatchers.jsonPath("$[0].username").value("TestUserA")
         ).andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].fname").value("Adam")
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].lname").value("Nowak")
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].address").value("ul. Testowa 45")
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].city").value("Testowo")
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].code").value("12-345")
+        ).andExpect(
                 MockMvcResultMatchers.jsonPath("$[0].password").value("TestPassA")
         ).andExpect(
                 MockMvcResultMatchers.jsonPath("$[0].about").value("Test user A is a user.")
@@ -114,6 +125,16 @@ public class UserControllerIntegrationTests {
         ).andExpect(
                 MockMvcResultMatchers.jsonPath("$.username").value("TestUserA")
         ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.fname").value("Adam")
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.lname").value("Nowak")
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.address").value("ul. Testowa 45")
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.city").value("Testowo")
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.code").value("12-345")
+        ).andExpect(
                 MockMvcResultMatchers.jsonPath("$.password").value("TestPassA")
         ).andExpect(
                 MockMvcResultMatchers.jsonPath("$.about").value("Test user A is a user.")
@@ -148,6 +169,16 @@ public class UserControllerIntegrationTests {
                 MockMvcResultMatchers.jsonPath("$.email").value("testusera@testmail.com")
         ).andExpect(
                 MockMvcResultMatchers.jsonPath("$.username").value("TestUserA")
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.fname").value("Adam")
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.lname").value("Nowak")
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.address").value("ul. Testowa 45")
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.city").value("Testowo")
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$.code").value("12-345")
         ).andExpect(
                 MockMvcResultMatchers.jsonPath("$.password").value("TestPassA")
         ).andExpect(
