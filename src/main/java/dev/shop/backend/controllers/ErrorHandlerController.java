@@ -3,6 +3,7 @@ package dev.shop.backend.controllers;
 import dev.shop.backend.domain.dto.security.ErrorResponse;
 import dev.shop.backend.exceptions.InvalidOrderOwnerException;
 import dev.shop.backend.exceptions.InvalidProductOwnerException;
+import dev.shop.backend.exceptions.ProductOwnerSelfOrderException;
 import dev.shop.backend.exceptions.UserAlreadyExistsException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -93,5 +94,16 @@ public class ErrorHandlerController {
                 .build();
 
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(ProductOwnerSelfOrderException.class)
+    public ResponseEntity<ErrorResponse> productOwnerSelfOrderException(ProductOwnerSelfOrderException e){
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(e.getMessage())
+                .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 }

@@ -25,5 +25,5 @@ public class OrderDTO {
 
     private String buyerId;
 
-    private ProductDTO product;
+    private Long productId;
 }

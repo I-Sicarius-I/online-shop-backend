@@ -31,7 +31,5 @@ public class OrderEntity {
 
     private String buyerId;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id", referencedColumnName = "id")
-    private ProductEntity product;
+    private Long productId;
 }

@@ -141,9 +141,7 @@ public class ReviewControllerIntegrationTests {
         ProductEntity productEntity = TestDataUtilities.createProductEntityA(savedUser.getEmail());
         ProductEntity savedProduct = productService.save(productEntity);
 
-        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(savedUser.getEmail(), savedProduct.getId());
-
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(savedUser.getEmail(), product);
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(savedUser.getEmail(), savedProduct.getId());
         reviewService.save(reviewEntity);
 
         mockMvc.perform(
@@ -165,9 +163,7 @@ public class ReviewControllerIntegrationTests {
         ProductEntity productEntity = TestDataUtilities.createProductEntityA(savedUser.getEmail());
         ProductEntity savedProduct = productService.save(productEntity);
 
-        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(user.getEmail(), savedProduct.getId());
-
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(savedUser.getEmail(), product);
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(savedUser.getEmail(), savedProduct.getId());
         reviewService.save(reviewEntity);
 
         mockMvc.perform(
@@ -190,13 +186,11 @@ public class ReviewControllerIntegrationTests {
         ProductEntity productEntity = TestDataUtilities.createProductEntityA(savedUser.getEmail());
         ProductEntity savedProduct = productService.save(productEntity);
 
-        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(user.getEmail(), savedProduct.getId());
-
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(savedUser.getEmail(), product);
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(savedUser.getEmail(), savedProduct.getId());
         reviewService.save(reviewEntity);
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/reviews?product_id=" + product.getId())
+                MockMvcRequestBuilders.get("/reviews?product_id=" + savedProduct.getId())
         ).andExpect(
                 MockMvcResultMatchers.status().isOk()
         );
@@ -211,13 +205,11 @@ public class ReviewControllerIntegrationTests {
         ProductEntity productEntity = TestDataUtilities.createProductEntityA(savedUser.getEmail());
         ProductEntity savedProduct = productService.save(productEntity);
 
-        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(savedUser.getEmail(), savedProduct.getId());
-
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(savedUser.getEmail(), product);
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(savedUser.getEmail(), savedProduct.getId());
         reviewService.save(reviewEntity);
 
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/reviews?product_id=" + product.getId())
+                MockMvcRequestBuilders.get("/reviews?product_id=" + savedProduct.getId())
         ).andExpect(
                 MockMvcResultMatchers.jsonPath("$[0].text").value(reviewEntity.getText())
         ).andExpect(

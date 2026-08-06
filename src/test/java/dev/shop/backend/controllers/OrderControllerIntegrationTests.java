@@ -135,9 +135,7 @@ public class OrderControllerIntegrationTests {
         ProductEntity productEntity = TestDataUtilities.createProductEntityA(savedUser.getEmail());
         ProductEntity savedProduct = productService.save(productEntity);
 
-        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(savedUser.getEmail(), savedProduct.getId());
-
-        OrderEntity order = TestDataUtilities.createOrderEntityA(savedUser.getEmail(), product);
+        OrderEntity order = TestDataUtilities.createOrderEntityA(savedUser.getEmail(), savedProduct.getId());
         OrderEntity savedOrder = orderService.save(order);
 
 
@@ -157,9 +155,7 @@ public class OrderControllerIntegrationTests {
         ProductEntity productEntity = TestDataUtilities.createProductEntityA(savedUser.getEmail());
         ProductEntity savedProduct = productService.save(productEntity);
 
-        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(savedUser.getEmail(), savedProduct.getId());
-
-        OrderEntity order = TestDataUtilities.createOrderEntityA(savedUser.getEmail(), product);
+        OrderEntity order = TestDataUtilities.createOrderEntityA(savedUser.getEmail(), savedProduct.getId());
         OrderEntity savedOrder = orderService.save(order);
 
 
@@ -180,9 +176,7 @@ public class OrderControllerIntegrationTests {
         ProductEntity productEntity = TestDataUtilities.createProductEntityA(savedUser.getEmail());
         ProductEntity savedProduct = productService.save(productEntity);
 
-        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(savedUser.getEmail(), savedProduct.getId());
-
-        OrderEntity order = TestDataUtilities.createOrderEntityA(savedUser.getEmail(), product);
+        OrderEntity order = TestDataUtilities.createOrderEntityA(savedUser.getEmail(), savedProduct.getId());
         OrderEntity savedOrder = orderService.save(order);
 
         mockMvc.perform(
@@ -202,11 +196,9 @@ public class OrderControllerIntegrationTests {
         ProductEntity productEntity = TestDataUtilities.createProductEntityA(savedUser.getEmail());
         ProductEntity savedProduct = productService.save(productEntity);
 
-        ProductEntity product = TestDataUtilities.createProductEntityAForRequests(savedUser.getEmail(), savedProduct.getId());
-
         productEntity.setId(savedProduct.getId());
 
-        OrderEntity order = TestDataUtilities.createOrderEntityA(savedUser.getEmail(), product);
+        OrderEntity order = TestDataUtilities.createOrderEntityA(savedUser.getEmail(), savedProduct.getId());
         OrderEntity savedOrder = orderService.save(order);
 
 

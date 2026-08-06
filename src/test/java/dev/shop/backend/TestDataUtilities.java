@@ -106,7 +106,7 @@ public final class TestDataUtilities {
                 .build();
     }
 
-    public static OrderEntity createOrderEntityA(final String email, final ProductEntity productEntity){
+    public static OrderEntity createOrderEntityA(final String email, final Long productId){
         Instant baseDate = Instant.parse("2026-06-23T10:00:00Z");
 
         Date dateOrdered = Date.from(baseDate.minus(3, ChronoUnit.DAYS));
@@ -119,11 +119,11 @@ public final class TestDataUtilities {
                 .dateShipped(dateShipped)
                 .dateReceived(dateReceived)
                 .buyerId(email)
-                .product(productEntity)
+                .productId(productId)
                 .build();
     }
 
-    public static OrderDTO createOrderDTOA(final String email, final ProductDTO productDTO){
+    public static OrderDTO createOrderDTOA(final String email, final Long productId){
         Instant baseDate = Instant.parse("2026-06-23T10:00:00Z");
 
         Date dateOrdered = Date.from(baseDate.minus(3, ChronoUnit.DAYS));
@@ -136,25 +136,25 @@ public final class TestDataUtilities {
                 .dateShipped(dateShipped)
                 .dateReceived(dateReceived)
                 .buyerId(email)
-                .product(productDTO)
+                .productId(productId)
                 .build();
     }
 
-    public static ReviewEntity createReviewEntityA(final String email, final ProductEntity productEntity){
+    public static ReviewEntity createReviewEntityA(final String email, final Long productId){
         return ReviewEntity.builder()
                 .text("Good test product")
                 .rating(10)
                 .reviewerId(email)
-                .product(productEntity)
+                .productId(productId)
                 .build();
     }
 
-    public static ReviewDTO createReviewDTOA(final String email, final ProductDTO productDTO){
+    public static ReviewDTO createReviewDTOA(final String email, final Long productId){
         return ReviewDTO.builder()
                 .text("Good test product")
                 .rating(10)
                 .reviewerId(email)
-                .product(productDTO)
+                .productId(productId)
                 .build();
     }
 

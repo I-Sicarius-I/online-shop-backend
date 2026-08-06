@@ -17,7 +17,7 @@ public class ReviewDTO {
 
     private Integer rating;
 
-    private ProductDTO product;
+    private Long productId;
 
     private String reviewerId;
 }

@@ -15,7 +15,7 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
     @Query("SELECT o FROM OrderEntity o WHERE o.buyerId = :email")
     public List<OrderEntity> findOrdersByBuyerId(@Param("email") String email);
 
-    @Query("SELECT o FROM OrderEntity o WHERE o.product.id = :id")
+    @Query("SELECT o FROM OrderEntity o WHERE o.productId = :id")
     public List<OrderEntity> findOrdersByProductId(@Param("id") Long id);
 
     @Query("SELECT EXISTS(SELECT o FROM OrderEntity o WHERE o.id = :id AND o.buyerId = :buyer_id)")

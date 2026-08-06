@@ -14,7 +14,7 @@ public interface ReviewRepository extends JpaRepository<ReviewEntity, Long> {
     @Query("SELECT r FROM ReviewEntity r WHERE r.reviewerId = :email")
     public List<ReviewEntity> findReviewsByReviewerId(@Param("email") String email);
 
-    @Query("SELECT r FROM ReviewEntity r WHERE r.product.id = :id")
+    @Query("SELECT r FROM ReviewEntity r WHERE r.productId = :id")
     public List<ReviewEntity> findReviewsByProductId(@Param("id") Long id);
 
     @Query("SELECT EXISTS(SELECT r FROM ReviewEntity r WHERE r.id = :id AND r.reviewerId = :reviewer_email)")

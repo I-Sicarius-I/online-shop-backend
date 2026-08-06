@@ -22,9 +22,7 @@ public class ReviewEntity {
 
     private Integer rating;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id", referencedColumnName = "id")
-    private ProductEntity product;
+    private Long productId;
 
     private String reviewerId;
 }

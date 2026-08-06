@@ -5,8 +5,10 @@ import dev.shop.backend.domain.dto.UserDTO;
 import dev.shop.backend.domain.entities.OrderEntity;
 import dev.shop.backend.domain.entities.ProductEntity;
 import dev.shop.backend.exceptions.InvalidOrderOwnerException;
+import dev.shop.backend.exceptions.ProductOwnerSelfOrderException;
 import dev.shop.backend.mappers.impl.OrderMapper;
 import dev.shop.backend.service.OrderService;
+import dev.shop.backend.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
@@ -24,7 +26,7 @@ import java.util.stream.Collectors;
 public class OrderController {
 
     private final OrderService orderService;
-
+    private final ProductService productService;
     private final OrderMapper orderMapper;
 
     @PostMapping("/orders")
@@ -32,6 +34,10 @@ public class OrderController {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = auth.getName();
+
+        if(productService.existsBySellerId(orderDTO.getProductId(), email)){
+            throw new ProductOwnerSelfOrderException("Product seller cannot buy his own product.");
+        }
 
         orderDTO.setBuyerId(email);
         OrderEntity orderEntity = orderMapper.mapFrom(orderDTO);
