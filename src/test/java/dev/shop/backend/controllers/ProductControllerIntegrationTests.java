@@ -293,6 +293,29 @@ public class ProductControllerIntegrationTests {
     }
 
     @Test
+    public void testThatPartialProductUpdateReturnsHttpStatusBadRequestWhenProductHasInvalidQuantity() throws Exception{
+
+        ProductEntity productA = TestDataUtilities.createProductEntityA(currentUser.getUsername());
+
+        ProductEntity savedProduct = productService.save(productA);
+
+        ProductDTO productDTO = TestDataUtilities.createProductDTOA(currentUser.getUsername());
+        productDTO.setQuantity(-2L);
+
+        String productJSON = objectMapper.writeValueAsString(productDTO);
+
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.patch("/products/" + productA.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(productJSON)
+        ).andExpect(
+                MockMvcResultMatchers.status().isBadRequest()
+        );
+    }
+
+
+    @Test
     public void testThatPartialProductUpdateReturnsUpdatedProduct() throws Exception{
 
         ProductEntity productA = TestDataUtilities.createProductEntityA(currentUser.getUsername());
@@ -339,7 +362,7 @@ public class ProductControllerIntegrationTests {
     }
 
     @Test
-    public void testThatDeleteExisitngProductReturnsHttpStatusUnauthorizedWhenProductOwnerDoesNotMatchCurrentUser() throws Exception{
+    public void testThatDeleteExistingProductReturnsHttpStatusUnauthorizedWhenProductOwnerDoesNotMatchCurrentUser() throws Exception{
         UserEntity testUser = TestDataUtilities.createTestUserEntityA();
         userService.save(testUser);
 

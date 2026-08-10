@@ -75,7 +75,7 @@ public class OrderServiceImpl implements OrderService {
                 existingOrder -> {
                     Optional.ofNullable(orderEntity.getQuantity()).ifPresent(existingOrder::setQuantity);
                     Optional.ofNullable(orderEntity.getDateOrdered()).ifPresent(existingOrder::setDateOrdered);
-                    Optional.ofNullable(orderEntity.getDateOrdered()).ifPresent(existingOrder::setDateOrdered);
+                    Optional.ofNullable(orderEntity.getDateShipped()).ifPresent(existingOrder::setDateShipped);
                     Optional.ofNullable(orderEntity.getDateReceived()).ifPresent(existingOrder::setDateReceived);
                     return orderRepository.save(existingOrder);
                 }

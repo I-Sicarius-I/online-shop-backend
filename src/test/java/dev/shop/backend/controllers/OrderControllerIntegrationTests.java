@@ -9,6 +9,7 @@ import dev.shop.backend.service.OrderService;
 import dev.shop.backend.service.ProductService;
 import dev.shop.backend.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +71,11 @@ public class OrderControllerIntegrationTests {
     @Test
     public void testThatCreateOrderReturnsHttpStatusCreated() throws Exception{
 
-        OrderEntity orderA = TestDataUtilities.createOrderEntityA(null, null);
+        ProductEntity product = TestDataUtilities.createProductEntityA(null);
+        productService.save(product);
+
+        OrderEntity orderA = TestDataUtilities.createOrderEntityA(null, product.getId());
+
 
         String orderJSON = objectMapper.writeValueAsString(orderA);
 
@@ -84,9 +89,48 @@ public class OrderControllerIntegrationTests {
     }
 
     @Test
-    public void testThatCreateOrderReturnsCreatedOrder() throws Exception{
+    public void testThatCreateOrderReturnsHttpStatusBadRequestWhenProductDoesNotExist() throws Exception{
 
-        OrderEntity order = TestDataUtilities.createOrderEntityA(null, null);
+
+        OrderEntity orderA = TestDataUtilities.createOrderEntityA("test@test.com", 2L);
+
+        String orderJSON = objectMapper.writeValueAsString(orderA);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.post("/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(orderJSON)
+        ).andExpect(
+                MockMvcResultMatchers.status().isBadRequest()
+        );
+    }
+
+    @Test
+    public void testThatCreateOrderWithInvalidQuantityReturnsHttpStatusBadRequest() throws Exception{
+
+        ProductEntity product = TestDataUtilities.createProductEntityA(null);
+        productService.save(product);
+
+        OrderEntity order = TestDataUtilities.createOrderEntityA(null, product.getId());
+        order.setQuantity(100L);
+
+        String orderJSON = objectMapper.writeValueAsString(order);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.post("/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(orderJSON)
+        ).andExpect(
+                MockMvcResultMatchers.status().isBadRequest()
+        );
+    }
+
+    @Test
+    public void testThatCreateOrderReturnsCreatedOrder() throws Exception{
+        ProductEntity product = TestDataUtilities.createProductEntityA(null);
+        productService.save(product);
+
+        OrderEntity order = TestDataUtilities.createOrderEntityA(null, product.getId());
 
         String orderJSON = objectMapper.writeValueAsString(order);
 
@@ -250,11 +294,14 @@ public class OrderControllerIntegrationTests {
     @Test
     public void testThatPartialUpdateOrderReturnsHttpStatusOKWhenOrderExists() throws Exception{
 
-        OrderEntity order = TestDataUtilities.createOrderEntityA(currentUser.getUsername(), null);
+        ProductEntity product = TestDataUtilities.createProductEntityA(null);
+        productService.save(product);
+
+        OrderEntity order = TestDataUtilities.createOrderEntityA(currentUser.getUsername(), product.getId());
         OrderEntity savedOrder = orderService.save(order);
 
-        OrderDTO orderDTO = TestDataUtilities.createOrderDTOA(currentUser.getUsername(), null);
-        orderDTO.setQuantity(123L);
+        OrderDTO orderDTO = TestDataUtilities.createOrderDTOA(currentUser.getUsername(), product.getId());
+        orderDTO.setQuantity(1L);
 
         String orderJSON = objectMapper.writeValueAsString(orderDTO);
 
@@ -271,7 +318,7 @@ public class OrderControllerIntegrationTests {
     public void testThatPartialUpdateOrderReturnsHttpStatusNotFoundWhenOrderDoesNotExist() throws Exception{
 
         OrderDTO orderDTO = TestDataUtilities.createOrderDTOA(currentUser.getUsername(), null);
-        orderDTO.setQuantity(123L);
+        orderDTO.setQuantity(1L);
 
         String orderJSON = objectMapper.writeValueAsString(orderDTO);
 
@@ -307,14 +354,19 @@ public class OrderControllerIntegrationTests {
         );
     }
 
+
+
     @Test
     public void testThatPartialUpdateOrderReturnsUpdatedOrder() throws Exception{
 
-        OrderEntity order = TestDataUtilities.createOrderEntityA(currentUser.getUsername(), null);
+        ProductEntity product = TestDataUtilities.createProductEntityA(null);
+        productService.save(product);
+
+        OrderEntity order = TestDataUtilities.createOrderEntityA(currentUser.getUsername(), product.getId());
         OrderEntity savedOrder = orderService.save(order);
 
-        OrderDTO orderDTO = TestDataUtilities.createOrderDTOA(currentUser.getUsername(), null);
-        orderDTO.setQuantity(123L);
+        OrderDTO orderDTO = TestDataUtilities.createOrderDTOA(currentUser.getUsername(), product.getId());
+        orderDTO.setQuantity(1L);
 
         String orderJSON = objectMapper.writeValueAsString(orderDTO);
 
@@ -323,15 +375,16 @@ public class OrderControllerIntegrationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(orderJSON)
         ).andExpect(
-                MockMvcResultMatchers.jsonPath("$.quantity").value(123L)
+                MockMvcResultMatchers.jsonPath("$.quantity").value(1L)
         );
     }
 
     @Test
     public void testThatDeleteOrderReturnsHttpStatusNoContentWhenOrderExists() throws Exception{
+        ProductEntity product = TestDataUtilities.createProductEntityA(null);
+        productService.save(product);
 
-
-        OrderEntity order = TestDataUtilities.createOrderEntityA(currentUser.getUsername(), null);
+        OrderEntity order = TestDataUtilities.createOrderEntityA(currentUser.getUsername(), product.getId());
         OrderEntity savedOrder = orderService.save(order);
 
         mockMvc.perform(

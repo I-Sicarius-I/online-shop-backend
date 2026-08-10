@@ -17,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -41,6 +42,19 @@ public class OrderController {
 
         orderDTO.setBuyerId(email);
         OrderEntity orderEntity = orderMapper.mapFrom(orderDTO);
+
+        Optional<ProductEntity> res = productService.findOne(orderDTO.getProductId());
+
+        if(res.isEmpty()){
+            throw new IllegalArgumentException("Product does not exist.");
+        }
+
+        ProductEntity productEntity = res.get();
+        Long updatedQuantity = productEntity.getQuantity() - orderDTO.getQuantity();
+
+        productEntity.setQuantity(updatedQuantity);
+
+        productService.partialUpdate(productEntity.getId(), productEntity);
         OrderEntity savedOrder = orderService.save(orderEntity);
 
         return new ResponseEntity<>(orderMapper.mapTo(savedOrder), HttpStatus.CREATED);
@@ -111,6 +125,22 @@ public class OrderController {
 
         orderDTO.setBuyerId(auth.getName());
 
+        OrderEntity order = orderService.findOne(id).get();
+
+        if(order.getQuantity() != orderDTO.getQuantity()){
+            Long diff = orderDTO.getQuantity() - order.getQuantity();
+
+            Optional<ProductEntity> prod = productService.findOne(order.getProductId());
+
+            if(prod.isPresent()){
+                ProductEntity update = prod.get();
+                update.setQuantity(update.getQuantity() - diff);
+
+                productService.partialUpdate(update.getId(), update);
+            }
+        }
+
+
         OrderEntity orderEntity = orderMapper.mapFrom(orderDTO);
         OrderEntity updatedOrder = orderService.partialUpdate(id, orderEntity);
 
@@ -125,6 +155,19 @@ public class OrderController {
         if(orderService.isExists(id) && !orderService.existsByBuyerId(id, auth.getName()))
         {
             throw new InvalidOrderOwnerException("Buyer does not match current user");
+        }
+
+        if(orderService.findOne(id).isPresent()){
+            OrderEntity order = orderService.findOne(id).get();
+            Optional<ProductEntity> res = productService.findOne(order.getProductId());
+
+            if(res.isPresent()){
+                ProductEntity prod = res.get();
+
+                prod.setQuantity(prod.getQuantity() + order.getQuantity());
+
+                productService.partialUpdate(prod.getId(), prod);
+            }
         }
 
         orderService.delete(id);

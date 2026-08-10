@@ -71,6 +71,11 @@ public class ProductServiceImpl implements ProductService {
                     Optional.ofNullable(productEntity.getDescription()).ifPresent(existingProduct::setDescription);
                     Optional.ofNullable(productEntity.getPrice()).ifPresent(existingProduct::setPrice);
                     Optional.ofNullable(productEntity.getRating()).ifPresent(existingProduct::setRating);
+
+                    if(existingProduct.getQuantity() < 0){
+                        throw new IllegalArgumentException("Quantity cannot be lower than zero.");
+                    }
+
                     return productRepository.save(existingProduct);
                 }
         ).orElseThrow(() -> new RuntimeException("Product does not exist"));
