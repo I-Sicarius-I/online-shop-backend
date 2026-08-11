@@ -292,6 +292,45 @@ public class OrderControllerIntegrationTests {
     }
 
     @Test
+    public void testThatCheckIfOrderExistsByBuyerIdAndProductIdReturnsTrueIfOrderExists() throws Exception{
+
+        OrderEntity order = TestDataUtilities.createOrderEntityA(currentUser.getUsername(), 1L);
+        OrderEntity savedOrder = orderService.save(order);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/orders?email=" + currentUser.getUsername() + "&productId=" + 1L)
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$").value(true)
+        );
+    }
+
+    @Test
+    public void testThatCheckIfOrderExistsByBuyerIdAndProductIdReturnsTrueIfOrderDoesNotExist() throws Exception{
+
+        OrderEntity order = TestDataUtilities.createOrderEntityA(currentUser.getUsername(), 1L);
+        OrderEntity savedOrder = orderService.save(order);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/orders?email=" + currentUser.getUsername() + "&productId=" + 2L)
+        ).andExpect(
+                MockMvcResultMatchers.jsonPath("$").value(false)
+        );
+    }
+
+    @Test
+    public void testThatCheckIfOrderExistsByBuyerIdAndProductIdReturnsHttpStatusOK() throws Exception{
+
+        OrderEntity order = TestDataUtilities.createOrderEntityA(currentUser.getUsername(), 1L);
+        OrderEntity savedOrder = orderService.save(order);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.get("/orders?email=" + currentUser.getUsername() + "&productId=" + 1L)
+        ).andExpect(
+                MockMvcResultMatchers.status().isOk()
+        );
+    }
+
+    @Test
     public void testThatPartialUpdateOrderReturnsHttpStatusOKWhenOrderExists() throws Exception{
 
         ProductEntity product = TestDataUtilities.createProductEntityA(null);

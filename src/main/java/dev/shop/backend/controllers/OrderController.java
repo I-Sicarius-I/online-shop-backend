@@ -83,6 +83,13 @@ public class OrderController {
                 .collect(Collectors.toList()), HttpStatus.OK);
     }
 
+    @GetMapping(value = "/orders", params = {"email", "productId"})
+    public ResponseEntity<Boolean> checkIfOrderExistsByProductAndUser(@Param("email") String email, @Param("productId") Long productId){
+        Boolean hasOrder = orderService.existsByBuyerIdAndProductId(email, productId);
+
+        return new ResponseEntity<>(hasOrder, HttpStatus.OK);
+    }
+
     @GetMapping(value = "/orders", params = "id")
     public ResponseEntity<List<OrderDTO>> listOrdersOfProduct(@Param("id") Long productId){
 

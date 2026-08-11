@@ -68,6 +68,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public boolean existsByBuyerIdAndProductId(String buyerId, Long productId) {
+        return orderRepository.existsByBuyerIdAndProductId(buyerId, productId);
+    }
+
+    @Override
     public OrderEntity partialUpdate(Long id, OrderEntity orderEntity){
         orderEntity.setId(id);
 

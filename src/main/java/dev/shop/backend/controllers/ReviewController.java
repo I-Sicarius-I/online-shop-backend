@@ -2,9 +2,13 @@ package dev.shop.backend.controllers;
 
 import dev.shop.backend.domain.dto.ReviewDTO;
 import dev.shop.backend.domain.dto.UserDTO;
+import dev.shop.backend.domain.entities.OrderEntity;
 import dev.shop.backend.domain.entities.ReviewEntity;
 import dev.shop.backend.exceptions.InvalidReviewOwnerException;
+import dev.shop.backend.exceptions.InvalidReviewerException;
 import dev.shop.backend.mappers.impl.ReviewMapper;
+import dev.shop.backend.service.OrderService;
+import dev.shop.backend.service.ProductService;
 import dev.shop.backend.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,15 +25,20 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ReviewController {
 
+    private final OrderService orderService;
     private final ReviewService reviewService;
     private final ReviewMapper reviewMapper;
 
     @PostMapping("/reviews")
     public ResponseEntity<ReviewDTO> createReview(@RequestBody ReviewDTO reviewDTO){
 
-       String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         reviewDTO.setReviewerId(email);
+
+        if(!orderService.existsByBuyerIdAndProductId(email, reviewDTO.getProductId())){
+            throw new InvalidReviewerException("User cannot make a review without buying a product.");
+        }
 
         ReviewEntity reviewEntity = reviewMapper.mapFrom(reviewDTO);
         ReviewEntity savedReview = reviewService.save(reviewEntity);

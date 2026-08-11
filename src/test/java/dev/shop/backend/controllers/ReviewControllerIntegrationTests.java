@@ -2,9 +2,11 @@ package dev.shop.backend.controllers;
 
 import dev.shop.backend.TestDataUtilities;
 import dev.shop.backend.domain.dto.ReviewDTO;
+import dev.shop.backend.domain.entities.OrderEntity;
 import dev.shop.backend.domain.entities.ProductEntity;
 import dev.shop.backend.domain.entities.ReviewEntity;
 import dev.shop.backend.domain.entities.UserEntity;
+import dev.shop.backend.service.OrderService;
 import dev.shop.backend.service.ProductService;
 import dev.shop.backend.service.ReviewService;
 import dev.shop.backend.service.UserService;
@@ -37,15 +39,17 @@ public class ReviewControllerIntegrationTests {
     private final ReviewService reviewService;
     private final UserService userService;
     private final ProductService productService;
+    private final OrderService orderService;
     private final ObjectMapper objectMapper;
     private UserDetails currentUser;
 
     @Autowired
-    public ReviewControllerIntegrationTests(MockMvc mockMvc, ReviewService reviewService, UserService userService, ProductService productService){
+    public ReviewControllerIntegrationTests(MockMvc mockMvc, ReviewService reviewService, UserService userService, ProductService productService, OrderService orderService){
         this.mockMvc = mockMvc;
         this.reviewService = reviewService;
         this.userService = userService;
         this.productService = productService;
+        this.orderService = orderService;
         this.objectMapper = new ObjectMapper();
     }
 
@@ -70,7 +74,9 @@ public class ReviewControllerIntegrationTests {
     @Test
     public void testThatCreateReviewReturnsHttpStatusCreated() throws Exception{
 
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(currentUser.getUsername(), null);
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(currentUser.getUsername(), 1L);
+        OrderEntity order = TestDataUtilities.createOrderEntityA(currentUser.getUsername(), 1L);
+        orderService.save(order);
 
         String reviewJSON = objectMapper.writeValueAsString(reviewEntity);
 
@@ -84,9 +90,27 @@ public class ReviewControllerIntegrationTests {
     }
 
     @Test
+    public void testThatCreateReviewWithoutBuyingProductReturnsHttpStatusBadRequest() throws Exception{
+
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(currentUser.getUsername(), 1L);
+
+        String reviewJSON = objectMapper.writeValueAsString(reviewEntity);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.post("/reviews")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(reviewJSON)
+        ).andExpect(
+                MockMvcResultMatchers.status().isBadRequest()
+        );
+    }
+
+    @Test
     public void testThatCreateReviewReturnsCreatedReview() throws Exception{
 
-        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(currentUser.getUsername(), null);
+        ReviewEntity reviewEntity = TestDataUtilities.createReviewEntityA(currentUser.getUsername(), 1L);
+        OrderEntity order = TestDataUtilities.createOrderEntityA(currentUser.getUsername(), 1L);
+        orderService.save(order);
 
         String reviewJSON = objectMapper.writeValueAsString(reviewEntity);
 

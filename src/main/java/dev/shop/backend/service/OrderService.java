@@ -21,6 +21,8 @@ public interface OrderService {
 
     boolean existsByBuyerId(Long id, String email);
 
+    boolean existsByBuyerIdAndProductId(String buyerId, Long productId);
+
     OrderEntity partialUpdate(Long id, OrderEntity orderEntity);
 
     void delete(Long id);

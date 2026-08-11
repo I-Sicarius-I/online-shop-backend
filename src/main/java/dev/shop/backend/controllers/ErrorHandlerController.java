@@ -1,10 +1,7 @@
 package dev.shop.backend.controllers;
 
 import dev.shop.backend.domain.dto.security.ErrorResponse;
-import dev.shop.backend.exceptions.InvalidOrderOwnerException;
-import dev.shop.backend.exceptions.InvalidProductOwnerException;
-import dev.shop.backend.exceptions.ProductOwnerSelfOrderException;
-import dev.shop.backend.exceptions.UserAlreadyExistsException;
+import dev.shop.backend.exceptions.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -98,6 +95,17 @@ public class ErrorHandlerController {
 
     @ExceptionHandler(ProductOwnerSelfOrderException.class)
     public ResponseEntity<ErrorResponse> productOwnerSelfOrderException(ProductOwnerSelfOrderException e){
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .message(e.getMessage())
+                .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidReviewerException.class)
+    public ResponseEntity<ErrorResponse> invalidReviewerException(InvalidReviewerException e){
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
