@@ -21,5 +21,7 @@ public interface ProductService {
 
     ProductEntity partialUpdate(Long id, ProductEntity productEntity);
 
+    ProductEntity updateRating(Long id, Integer rating, Integer numberOfReviews);
+
     void delete(Long id);
 }

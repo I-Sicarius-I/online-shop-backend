@@ -82,6 +82,18 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public ProductEntity updateRating(Long id, Integer rating, Integer numberOfReviews){
+
+        return productRepository.findById(id).map(
+                existingProduct -> {
+                    existingProduct.setRating((existingProduct.getRating() + rating) / numberOfReviews.doubleValue());
+
+                    return productRepository.save(existingProduct);
+                }
+        ).orElseThrow(() -> new RuntimeException("Product does not exist"));
+    }
+
+    @Override
     public void delete(Long id)
     {
         productRepository.deleteById(id);

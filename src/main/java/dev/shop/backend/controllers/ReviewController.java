@@ -3,6 +3,7 @@ package dev.shop.backend.controllers;
 import dev.shop.backend.domain.dto.ReviewDTO;
 import dev.shop.backend.domain.dto.UserDTO;
 import dev.shop.backend.domain.entities.OrderEntity;
+import dev.shop.backend.domain.entities.ProductEntity;
 import dev.shop.backend.domain.entities.ReviewEntity;
 import dev.shop.backend.exceptions.InvalidReviewOwnerException;
 import dev.shop.backend.exceptions.InvalidReviewerException;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 public class ReviewController {
 
     private final OrderService orderService;
+    private final ProductService productService;
     private final ReviewService reviewService;
     private final ReviewMapper reviewMapper;
 
@@ -42,6 +44,11 @@ public class ReviewController {
 
         ReviewEntity reviewEntity = reviewMapper.mapFrom(reviewDTO);
         ReviewEntity savedReview = reviewService.save(reviewEntity);
+
+        Integer length = reviewService.findReviewsOfProduct(savedReview.getProductId()).size();
+
+        productService.updateRating(savedReview.getProductId(), savedReview.getRating(), length);
+
         return new ResponseEntity<>(reviewMapper.mapTo(savedReview), HttpStatus.CREATED);
     }
 
@@ -66,8 +73,8 @@ public class ReviewController {
                         .collect(Collectors.toList()), HttpStatus.OK);
     }
 
-    @GetMapping(value = "/reviews", params = "product_id")
-    public ResponseEntity<List<ReviewDTO>> listReviewsOfProduct(@RequestParam("product_id") Long id){
+    @GetMapping(value = "/reviews", params = "productId")
+    public ResponseEntity<List<ReviewDTO>> listReviewsOfProduct(@RequestParam("productId") Long id){
 
         List<ReviewEntity> reviewEntities = reviewService.findReviewsOfProduct(id);
 
@@ -110,6 +117,9 @@ public class ReviewController {
         ReviewEntity reviewEntity = reviewMapper.mapFrom(reviewDTO);
         ReviewEntity updatedEntity = reviewService.partialUpdate(id, reviewEntity);
 
+        Integer length = reviewService.findReviewsOfProduct(updatedEntity.getProductId()).size();
+        productService.updateRating(updatedEntity.getProductId(), updatedEntity.getRating(), length);
+
         return new ResponseEntity<>(reviewMapper.mapTo(updatedEntity), HttpStatus.OK);
     }
 
@@ -122,6 +132,14 @@ public class ReviewController {
         {
             throw new InvalidReviewOwnerException("Reviewer does not match current user.");
         }
+
+        Optional<ReviewEntity> review = reviewService.findOne(id);
+
+
+        review.ifPresent(reviewEntity -> {
+            Integer length = reviewService.findReviewsOfProduct(reviewEntity.getProductId()).size();
+            productService.updateRating(reviewEntity.getProductId(), -1 * reviewEntity.getRating(), length);
+        });
 
         reviewService.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
